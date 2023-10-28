@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nodj.myapplication"
+    namespace = "com.nodj.hardwareStore"
     compileSdk = 33
     buildToolsVersion = "33.0.1"
     defaultConfig {
-        applicationId = "com.nodj.myapplication"
+        applicationId = "com.nodj.hardwareStore"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
