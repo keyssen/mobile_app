@@ -33,6 +33,7 @@ import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,7 +82,7 @@ fun OrderList(navController: NavController?) {
                         Text(modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 10.dp, start = 10.dp),
-                            text = "Дата: ${convertDate(order.date.toString())}")
+                            text = "Дата: ${convertDate(order.date)}")
                     }
                 }
             }
@@ -102,10 +103,7 @@ fun OrderListPreview() {
     }
 }
 
-fun convertDate(inputDate: String): String {
-    val inputFormat = SimpleDateFormat("E MMM dd HH:mm:ss 'GMT'Z yyyy", Locale.ENGLISH)
-    val date = inputFormat.parse(inputDate)
+fun convertDate(inputDate: Date): String {
     val outputFormat = SimpleDateFormat("dd MMMM yyyy HH:mm", Locale("ru", "RU"))
-
-    return outputFormat.format(date)
+    return outputFormat.format(inputDate)
 }
