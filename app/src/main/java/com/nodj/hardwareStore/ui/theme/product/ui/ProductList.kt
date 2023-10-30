@@ -55,7 +55,11 @@ fun ProductList(navController: NavController?, type: String = "catalog", categor
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             products.clear()
-            products.addAll(AppDatabase.getInstance(context).productDao().getAll())
+            if (categoryId == -1) {
+                products.addAll(AppDatabase.getInstance(context).productDao().getAll())
+            } else{
+                products.addAll(AppDatabase.getInstance(context).productDao().getByCategory(categoryId))
+            }
         }
     }
     LazyVerticalGrid(
@@ -71,7 +75,7 @@ fun ProductList(navController: NavController?, type: String = "catalog", categor
         content = {
             items(products.size) { index ->
                 val product = products[index]
-                val studentId = Screen.ProductView.route.replace("{id}", product.id.toString())
+                val productId = Screen.ProductView.route.replace("{id}", product.id.toString())
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -79,7 +83,7 @@ fun ProductList(navController: NavController?, type: String = "catalog", categor
                         .padding(top = 10.dp)
                         .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
                         .clickable {
-                            navController?.navigate(studentId)
+                            navController?.navigate(productId)
                         },
                 ) {
                     Image(
@@ -104,7 +108,7 @@ fun ProductList(navController: NavController?, type: String = "catalog", categor
                                         .padding(all = 10.dp)
                                         .width(100.dp)
                                         .height(40.dp),
-                                    onClick = { navController?.navigate(studentId) }) {
+                                    onClick = { navController?.navigate(productId) }) {
                                     Text("Купить")
                                 }
                             } else if (type == "cart"){
@@ -113,7 +117,7 @@ fun ProductList(navController: NavController?, type: String = "catalog", categor
                                         .padding(top = 10.dp, bottom = 10.dp)
                                         .width(65.dp)
                                         .height(40.dp),
-                                    onClick = { navController?.navigate(studentId) }) {
+                                    onClick = { navController?.navigate(productId) }) {
                                     Icon(
                                         imageVector = Icons.Filled.Add,
                                         contentDescription = null,
@@ -126,7 +130,7 @@ fun ProductList(navController: NavController?, type: String = "catalog", categor
                                         .padding(top = 10.dp, bottom = 10.dp)
                                         .width(65.dp)
                                         .height(40.dp),
-                                    onClick = { navController?.navigate(studentId) }) {
+                                    onClick = { navController?.navigate(productId) }) {
                                     Icon(
                                         imageVector = ImageVector.vectorResource(id = R.drawable.minus),
                                         contentDescription = null,
@@ -139,7 +143,7 @@ fun ProductList(navController: NavController?, type: String = "catalog", categor
                                         .padding(top = 10.dp, bottom = 10.dp)
                                         .width(65.dp)
                                         .height(40.dp),
-                                    onClick = { navController?.navigate(studentId) }) {
+                                    onClick = { navController?.navigate(productId) }) {
                                     Icon(
                                         imageVector = Icons.Filled.Delete,
                                         contentDescription = null,

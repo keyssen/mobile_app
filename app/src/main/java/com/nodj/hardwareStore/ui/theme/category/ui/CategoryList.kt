@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import com.nodj.hardwareStore.ui.theme.MyApplicationTheme
 import com.nodj.hardwareStore.ui.theme.database.AppDatabase
 import com.nodj.hardwareStore.ui.theme.models.Category
+import com.nodj.hardwareStore.ui.theme.navigation.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -56,6 +57,8 @@ fun CategoryList(navController: NavController?) {
         ),
         content = {
             items(categories.size) { index ->
+                val category = categories[index]
+                val categoryId = Screen.CategoryView.route.replace("{id}", category.id.toString())
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -65,11 +68,11 @@ fun CategoryList(navController: NavController?) {
                         .height(50.dp)
                         .padding(all = 10.dp)
                         .clickable {
-//                            navController
+                            navController?.navigate(categoryId)
                         },
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    Text("${categories[index].name}")
+                    Text("${category.name}")
                 }
             }
         }

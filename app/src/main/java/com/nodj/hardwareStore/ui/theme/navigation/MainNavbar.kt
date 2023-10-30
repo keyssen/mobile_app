@@ -131,6 +131,12 @@ fun Navhost(
         ) { backStackEntry ->
             backStackEntry.arguments?.let { OrderView(navController, it.getInt("id")) }
         }
+        composable(
+            Screen.CategoryView.route,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { backStackEntry ->
+            backStackEntry.arguments?.let { ProductList(navController, "catalog", it.getInt("id")) }
+        }
     }
 }
 

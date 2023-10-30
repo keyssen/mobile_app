@@ -27,9 +27,12 @@ interface ProductDao {
     @Query(
         "SELECT p.*, uwp.count FROM products AS p " +
                 "JOIN user_with_products AS uwp ON p.product_id = uwp.product_id " +
-                "WHERE uwp.user_id = :userid"
+                "WHERE uwp.user_id = :userId"
     )
-    suspend fun getAllByUser(userid: Int): List<AdvancedProduct>
+    suspend fun getAllByUser(userId: Int): List<AdvancedProduct>
+
+    @Query("select * from products where category_id = :categoryId")
+    suspend fun getByCategory(categoryId: Int): List<Product>
 
     @Query(
         "SELECT p.*, owp.count FROM products AS p " +

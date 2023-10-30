@@ -1,6 +1,7 @@
 package com.nodj.hardwareStore.ui.theme.product.ui
 
 import android.content.res.Configuration
+import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,6 +48,7 @@ import com.nodj.hardwareStore.ui.theme.models.Order
 import com.nodj.hardwareStore.ui.theme.navigation.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,10 +75,16 @@ fun OrderList(navController: NavController?) {
             items(orders.size) { index ->
                 val order = orders[index]
                 val orderId = Screen.OrderView.route.replace("{id}", order.id.toString())
+//                val dateParser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+//                val date = dateParser.parse(order.date.toString())
+//                val dateFormatter = SimpleDateFormat("dd MMMM yyyy HH:mm:ss", Locale("ru"))
+//                // or you can try (when calling 'format()' it will print "27 июля 2020 г. 04:28:06":
+//                // val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.DEFAULT, Locale("ru"))
+//                val formattedDate = dateFormatter.format(date!!) // 27 июля 2020 04:28:06
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(85.dp)
+                        .height(95.dp)
                         .padding(top = 10.dp)
                         .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
                         .clickable {
@@ -94,7 +102,7 @@ fun OrderList(navController: NavController?) {
                         Text(modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 10.dp, start = 10.dp),
-                            text = "Price: ${10000}")
+                            text = "Дата: ${convertDate(order.date.toString())}")
                     }
                 }
             }
@@ -113,4 +121,20 @@ fun OrderListPreview() {
             OrderList(navController = null)
         }
     }
+}
+
+fun convertDate(inputDate: String): String {
+    // Определите шаблон для разбора исходной даты
+    val inputFormat = SimpleDateFormat("E MMM dd HH:mm:ss 'GMT'Z yyyy", Locale.ENGLISH)
+
+    // Распарсите исходную дату
+    val date = inputFormat.parse(inputDate)
+
+    // Определите шаблон для форматирования в ожидаемый вид
+    val outputFormat = SimpleDateFormat("dd MMMM yyyy HH:mm", Locale("ru", "RU"))
+
+    // Преобразуйте дату в строку с новым форматом
+    val formattedDate = outputFormat.format(date)
+
+    return formattedDate
 }

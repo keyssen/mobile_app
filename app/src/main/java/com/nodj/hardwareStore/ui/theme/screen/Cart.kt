@@ -30,8 +30,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,10 +61,14 @@ import kotlinx.coroutines.withContext
 fun Cart(navController: NavController?) {
     val context = LocalContext.current
     val productsInCart = remember { mutableStateListOf<AdvancedProduct>() }
+    var price by remember { mutableStateOf(0.00) }
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             productsInCart.clear()
             productsInCart.addAll(AppDatabase.getInstance(context).productDao().getAllByUser(1))
+            productsInCart.forEach{ product ->
+                price += product.count * product.product.price
+            }
         }
     }
     LazyVerticalGrid(
@@ -74,8 +81,8 @@ fun Cart(navController: NavController?) {
         ),
         content = {
             items(productsInCart.size) { index ->
-                val studentId = Screen.ProductView.route.replace("{id}", index.toString())
                 val productInCart = productsInCart[index]
+                val productId = Screen.ProductView.route.replace("{id}", productInCart.product.id.toString())
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -83,7 +90,7 @@ fun Cart(navController: NavController?) {
                         .padding(top = 10.dp)
                         .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
                         .clickable {
-                            navController?.navigate(studentId)
+                            navController?.navigate(productId)
                         },
                 ) {
                     Image(
@@ -105,7 +112,7 @@ fun Cart(navController: NavController?) {
                                 .padding(end = 10.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            IconButton(onClick = { navController?.navigate(studentId) },
+                            IconButton(onClick = { navController?.navigate(productId) },
                                 modifier = Modifier
                                     .padding(top = 20.dp)
                                     .size(20.dp)) {
@@ -116,14 +123,14 @@ fun Cart(navController: NavController?) {
                                 modifier = Modifier
                                     .padding(top = 20.dp)
                                     .size(20.dp))
-                            IconButton(onClick = { navController?.navigate(studentId) },
+                            IconButton(onClick = { navController?.navigate(productId) },
                                 modifier = Modifier
                                     .padding(top = 20.dp)
                                     .size(20.dp)) {
                                 Icon(ImageVector.vectorResource(id = R.drawable.minus),
                                     contentDescription = null)
                             }
-                            IconButton(onClick = { navController?.navigate(studentId) },
+                            IconButton(onClick = { navController?.navigate(productId) },
                                 modifier = Modifier
                                     .padding(top = 20.dp)
                                     .size(20.dp)) {
@@ -162,7 +169,7 @@ fun Cart(navController: NavController?) {
                         .padding(all = 10.dp),
                 ) {
                     Column {
-                        Text("Цена: 20000", textAlign = TextAlign.Start)
+                        Text("Цена: ${price}", textAlign = TextAlign.Start)
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth(),

@@ -36,6 +36,9 @@ enum class Screen(
     OrderView(
         "order-view/{id}", R.string.product_orders, showInBottomBar = false
     ),
+    CategoryView(
+        "category-view/{id}", R.string.product_view_title, showInBottomBar = false
+    ),
     Catalog(
         "catalog", R.string.product_catalog, Icons.Filled.List
     ),
