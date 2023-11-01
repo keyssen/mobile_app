@@ -29,6 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.Order
+import com.nodj.hardwareStore.db.models.Order.Companion.getEmpty
+import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
+import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
 import kotlinx.coroutines.Dispatchers
@@ -40,11 +43,11 @@ import java.util.Locale
 @Composable
 fun OrderList(navController: NavController?) {
     val context = LocalContext.current
-    val orders = remember { mutableStateListOf<Order>() }
+    val orders = remember { mutableStateListOf<Pair<Order, List<ProductFromOrder>>>() }
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             orders.clear()
-            orders.addAll(AppDatabase.getInstance(context).orderDao().getAll())
+            orders.addAll(AppDatabase.getInstance(context).orderDao().getAllByUser(1).toList())
         }
     }
     LazyVerticalGrid(
@@ -59,12 +62,13 @@ fun OrderList(navController: NavController?) {
         ),
         content = {
             items(orders.size) { index ->
-                val order = orders[index]
+                val order = orders[index].first
+                val listProduct = orders[index].second
                 val orderId = Screen.OrderView.route.replace("{id}", order.id.toString())
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(95.dp)
+                        .height(125.dp)
                         .padding(top = 10.dp)
                         .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
                         .clickable {
@@ -83,6 +87,10 @@ fun OrderList(navController: NavController?) {
                             .fillMaxWidth()
                             .padding(top = 10.dp, start = 10.dp),
                             text = "Дата: ${convertDate(order.date)}")
+                        Text(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, start = 10.dp),
+                            text = "Цена: ${listProduct.sumOf { it.count * it.currentPrice }}")
                     }
                 }
             }

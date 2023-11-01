@@ -81,16 +81,16 @@ abstract class AppDatabase : RoomDatabase() {
                 orderDao.insert(order3)
                 orderDao.insert(order4)
                 val orderWithProductsDao = database.orderWithProductsDao()
-                val orderWithProductsDao1 = OrderWithProducts(1, 1, 3)
-                val orderWithProductsDao2 = OrderWithProducts(1, 2, 2)
-                val orderWithProductsDao3 = OrderWithProducts(1, 3, 5)
+                val orderWithProductsDao1 = OrderWithProducts(1, 1, 3, 1000.0)
+                val orderWithProductsDao2 = OrderWithProducts(1, 2, 2, 2000.0)
+                val orderWithProductsDao3 = OrderWithProducts(1, 3, 5, 3000.0)
 
-                val orderWithProductsDao4 = OrderWithProducts(2, 1, 3)
+                val orderWithProductsDao4 = OrderWithProducts(2, 1, 3, 1000.0)
 
-                val orderWithProductsDao5 = OrderWithProducts(3, 1, 3)
-                val orderWithProductsDao6 = OrderWithProducts(3, 2, 2)
+                val orderWithProductsDao5 = OrderWithProducts(3, 1, 3, 1000.0)
+                val orderWithProductsDao6 = OrderWithProducts(3, 2, 2, 2000.0)
 
-                val orderWithProductsDao7 = OrderWithProducts(4, 1, 3)
+                val orderWithProductsDao7 = OrderWithProducts(4, 1, 3, 1000.0)
                 orderWithProductsDao.insert(orderWithProductsDao1)
                 orderWithProductsDao.insert(orderWithProductsDao2)
                 orderWithProductsDao.insert(orderWithProductsDao3)

@@ -2,9 +2,11 @@ package com.nodj.hardwareStore.db.theme.order
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,16 +27,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
+import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
 import kotlinx.coroutines.Dispatchers
@@ -44,11 +50,11 @@ import kotlinx.coroutines.withContext
 @Composable
 fun OrderView(navController: NavController?, id: Int) {
     val context = LocalContext.current
-    val products = remember { mutableStateListOf<AdvancedProduct>() }
+    val products = remember { mutableStateListOf<ProductFromOrder>() }
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             products.clear()
-            products.addAll(AppDatabase.getInstance(context).productDao().getAllByOrder(id))
+            products.addAll(AppDatabase.getInstance(context).orderDao().getByOrder(id))
         }
     }
     LazyVerticalGrid(
@@ -61,8 +67,8 @@ fun OrderView(navController: NavController?, id: Int) {
         ),
         content = {
             items(products.size) { index ->
-                val advancedProduct = products[index]
-                val productId = Screen.ProductView.route.replace("{id}", advancedProduct.product.id.toString())
+                val productFromOrder = products[index]
+                val productId = Screen.ProductView.route.replace("{id}", productFromOrder.product.id.toString())
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -78,7 +84,7 @@ fun OrderView(navController: NavController?, id: Int) {
                             .width(110.dp)
                             .height(160.dp)
                             .padding(start = 10.dp),
-                        bitmap = ImageBitmap.imageResource(advancedProduct.product.imageId),
+                        bitmap = ImageBitmap.imageResource(productFromOrder.product.imageId),
                         contentDescription = "Продукт"
                     )
                     Column(
@@ -97,7 +103,7 @@ fun OrderView(navController: NavController?, id: Int) {
                                 onClick = { navController?.navigate(productId) }) {
                                 Text("Купить")
                             }
-                            Text(text = advancedProduct.count.toString(),
+                            Text(text = productFromOrder.count.toString(),
                                 modifier = Modifier
                                     .padding(top = 20.dp)
                                     .size(20.dp))
@@ -108,12 +114,31 @@ fun OrderView(navController: NavController?, id: Int) {
                         ){
                             Text(modifier = Modifier
                                 .fillMaxWidth(),
-                                text = "${advancedProduct.product.name}")
+                                text = "${productFromOrder.product.name}")
                             Text(modifier = Modifier
                                 .fillMaxWidth(),
-                                text = "${advancedProduct.product.price}")
+                                text = "${productFromOrder.product.price}")
                         }
 
+                    }
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(top = 10.dp)
+                        .border(2.dp, Color.Gray, RoundedCornerShape(10.dp)),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ){
+                        Text(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, start = 10.dp),
+                            text = "Цена: ${products.sumOf { it.count * it.currentPrice }}")
                     }
                 }
             }

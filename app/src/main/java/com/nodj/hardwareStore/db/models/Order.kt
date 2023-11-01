@@ -34,7 +34,7 @@ data class Order(
         if (javaClass != other?.javaClass) {
             return false
         }
-        other as Product
+        other as Order
         if (id != other.id) {
             return false
         }
@@ -48,7 +48,7 @@ data class Order(
     companion object {
         fun getEmpty(): Order {
             return Order(
-                id = null,
+                id = -1,
                 date = Date(),
                 userId = -1,
             )

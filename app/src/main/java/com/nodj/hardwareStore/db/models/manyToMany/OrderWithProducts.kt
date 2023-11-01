@@ -14,7 +14,9 @@ class OrderWithProducts (
     @ColumnInfo(name = "product_id")
     val productId: Long,
     @ColumnInfo(name = "count")
-    val count: Int
+    val count: Int,
+    @ColumnInfo(name = "current_price")
+    val currentPrice: Double
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) {
