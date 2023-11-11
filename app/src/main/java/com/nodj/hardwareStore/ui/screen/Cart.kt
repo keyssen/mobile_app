@@ -53,6 +53,7 @@ import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
+import com.nodj.hardwareStore.ui.product.productCarts.ProductForCart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -81,82 +82,7 @@ fun Cart(navController: NavController?) {
         ),
         content = {
             items(productsInCart.size) { index ->
-                val productInCart = productsInCart[index]
-                val productId = Screen.ProductView.route.replace("{id}", productInCart.product.id.toString())
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .padding(top = 10.dp)
-                        .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
-                        .clickable {
-                            navController?.navigate(productId)
-                        },
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .width(110.dp)
-                            .height(160.dp)
-                            .padding(start = 10.dp),
-                        bitmap = ImageBitmap.imageResource(productInCart.product.imageId),
-                        contentDescription = "Продукт"
-                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 10.dp)
-                                .padding(end = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            IconButton(onClick = { navController?.navigate(productId) },
-                                modifier = Modifier
-                                    .padding(top = 20.dp)
-                                    .size(20.dp)) {
-                                Icon(Icons.Filled.Add,
-                                    contentDescription = null)
-                            }
-                            Text(text = productInCart.count.toString(),
-                                modifier = Modifier
-                                    .padding(top = 20.dp)
-                                    .size(20.dp))
-                            IconButton(onClick = { navController?.navigate(productId) },
-                                modifier = Modifier
-                                    .padding(top = 20.dp)
-                                    .size(20.dp)) {
-                                Icon(ImageVector.vectorResource(id = R.drawable.minus),
-                                    contentDescription = null)
-                            }
-                            IconButton(onClick = { navController?.navigate(productId) },
-                                modifier = Modifier
-                                    .padding(top = 20.dp)
-                                    .size(20.dp)) {
-                                Icon(Icons.Filled.Delete,
-                                    contentDescription = null)
-                            }
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 10.dp)
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                text = "${productInCart.product.name}"
-                            )
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                text = "${productInCart.product.price}"
-                            )
-                        }
-
-                    }
-                }
+                ProductForCart(context, navController, productsInCart[index])
             }
             item {
                 Box(
@@ -183,7 +109,7 @@ fun Cart(navController: NavController?) {
                                     .height(40.dp)
                                     .align(Alignment.CenterHorizontally),
                                 onClick = {}) {
-                                Text("Купить")
+                                Text("Купить2")
                             }
                         }
                     }

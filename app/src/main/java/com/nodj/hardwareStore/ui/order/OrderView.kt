@@ -101,7 +101,7 @@ fun OrderView(navController: NavController?, id: Int) {
                                     .width(100.dp)
                                     .height(40.dp),
                                 onClick = { navController?.navigate(productId) }) {
-                                Text("Купить")
+                                Text("Купить1")
                             }
                             Text(text = productFromOrder.count.toString(),
                                 modifier = Modifier
