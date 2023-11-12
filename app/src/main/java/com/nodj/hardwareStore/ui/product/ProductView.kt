@@ -80,14 +80,16 @@ fun ProductView(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f),
-            bitmap = Product.toBitmap(productUiState.productDetails.image).asImageBitmap(),
+        if (productUiState.productDetails.image.size > 0){
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                bitmap = Product.toBitmap(productUiState.productDetails.image).asImageBitmap(),
 //            painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
-            contentDescription = "Продукт"
-        )
+                contentDescription = "Продукт"
+            )
+        }
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = productUiState.productDetails.name, onValueChange = {}, readOnly = true,
             label = {
