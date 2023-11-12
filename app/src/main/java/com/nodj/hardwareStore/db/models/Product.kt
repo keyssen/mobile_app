@@ -3,6 +3,7 @@ package com.nodj.hardwareStore.db.models
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.annotation.DrawableRes
+import androidx.paging.compose.LazyPagingItems
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -72,6 +73,13 @@ data class Product(
             val outputStream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
             return outputStream.toByteArray()
+        }
+
+        fun contains(listProduct: LazyPagingItems<Product>, id: Int): Boolean{
+            for (i in 0..listProduct.itemCount) {
+                if(listProduct[i]!!.id == id) return true
+            }
+            return false
         }
     }
 }

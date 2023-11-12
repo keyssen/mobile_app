@@ -86,7 +86,6 @@ fun ProductList(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pagingProduct: LazyPagingItems<Product> = viewModel.call().collectAsLazyPagingItems()
-    val productListUiState by viewModel.productListUiState.collectAsState()
     val productListCartUiState by viewModel.productListCartUiState.collectAsState()
     Scaffold(
         topBar = {},
@@ -101,15 +100,10 @@ fun ProductList(
             }
         }
     ) { innerPadding ->
-//        ProductList2(
-//            modifier = Modifier.padding(innerPadding),
-//            productList = pagingProduct
-//        )
         ProductList(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-//            productList = productListUiState.productList,
             productList = pagingProduct,
             productCartList = productListCartUiState.productListCart,
             onClick = { id: Int ->
@@ -138,85 +132,6 @@ fun ProductList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProductList2(
-    modifier: Modifier,
-    productList: LazyPagingItems<Product>,
-) {
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(1),
-
-        // content padding
-        contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 16.dp,
-            end = 12.dp,
-            bottom = 16.dp
-        ),
-        content = {
-            items(productList.itemCount) { index ->
-                val product = productList[index]
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .padding(top = 10.dp)
-                        .border(2.dp, Color.Gray, RoundedCornerShape(10.dp)),
-                ) {
-//                    Image(
-//                        modifier = Modifier
-//                            .width(110.dp)
-//                            .height(160.dp)
-//                            .padding(start = 10.dp),
-//                        bitmap = ImageBitmap.imageResource(product.imageId),
-//                        contentDescription = "Продукт"
-//                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ){
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ){
-                                Button(
-                                    modifier = Modifier
-                                        .width(130.dp)
-                                        .height(40.dp),
-                                    onClick = {  }) {
-                                    Text(stringResource(R.string.go_to_cart))
-                                }
-                            Box(
-                                modifier = Modifier
-                                    .padding(top = 7.dp, end = 10.dp)
-                            ){
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Home Icon",
-                                )
-                            }
-
-                        }
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 10.dp)
-                        ){
-                            Text(modifier = Modifier
-                                .fillMaxWidth(),
-                                text = "${product?.name}")
-                            Text(modifier = Modifier
-                                .fillMaxWidth(),
-                                text = "${product?.price}")
-                        }
-                    }
-                }
-            }
-        }
-    )
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -236,12 +151,6 @@ private fun SwipeToDelete(
             DismissDirection.EndToStart
         ),
         background = {
-//            val backgroundColor by animateColorAsState(
-//                when (dismissState.targetValue) {
-//                    DismissValue.DismissedToStart -> Color.Red.copy(alpha = 0.8f)
-//                    else -> Color.White
-//                }, label = ""
-//            )
             val iconScale by animateFloatAsState(
                 targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) 1.3f else 0.0f,
                 label = ""
@@ -280,7 +189,6 @@ private fun SwipeToDelete(
 @Composable
 fun ProductList(
     modifier: Modifier = Modifier,
-//    productList: List<Product>,
     productList: LazyPagingItems<Product>,
     productCartList: List<Product>,
     onClick: (id: Int) -> Unit,
@@ -294,8 +202,6 @@ fun ProductList(
         ) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
-
-                // content padding
                 contentPadding = PaddingValues(
                     start = 12.dp,
                     top = 16.dp,
@@ -313,7 +219,7 @@ fun ProductList(
                             if (dismissState.isDismissed(direction = DismissDirection.EndToStart)) {
                                 onSwipe(product)
                             }
-                            if (productCartList.contains(product)){
+                            if (Product.contains(productList, product.id)){
                                 inCart = true
                             }
                             SwipeToDelete(
@@ -326,7 +232,6 @@ fun ProductList(
                                 onClickViewCart = onClickViewCart
                             )
                         }
-//                    ProductForCatalog(navController = navController, product = products[index])
                     }
                 }
             )
