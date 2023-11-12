@@ -1,5 +1,6 @@
 package com.nodj.hardwareStore.db.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -7,15 +8,19 @@ import androidx.room.Query
 import androidx.room.Update
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface ProductDao {
     @Query("select * from products order by name collate nocase asc")
-    suspend fun getAll(): List<Product>
+    fun getAll(): Flow<List<Product>>
+
+    @Query("select * from products order by name collate nocase asc")
+    fun loadAllProductPaged(): PagingSource<Int, Product>
 
     @Query("select * from products where product_id = :id")
-    suspend fun getByid(id: Int): Product
+    fun getProduct(id: Int): Flow<Product>
 
     @Query(
         "SELECT p.*, uwp.count FROM products AS p " +
@@ -29,7 +34,21 @@ interface ProductDao {
                 "JOIN user_with_products AS uwp ON p.product_id = uwp.product_id " +
                 "WHERE uwp.user_id = :userId"
     )
+    fun getAllByUserFlow(userId: Int): Flow<List<AdvancedProduct>>
+
+    @Query(
+        "SELECT p.*, uwp.count FROM products AS p " +
+                "JOIN user_with_products AS uwp ON p.product_id = uwp.product_id " +
+                "WHERE uwp.user_id = :userId"
+    )
     suspend fun getAllByUser(userId: Int): List<AdvancedProduct>
+
+    @Query(
+        "SELECT p.* FROM products AS p " +
+                "JOIN user_with_products AS uwp ON p.product_id = uwp.product_id " +
+                "WHERE uwp.user_id = :userId"
+    )
+    fun getAllByUserProduct(userId: Int): Flow<List<Product>>
 
     @Query("select * from products where category_id = :categoryId")
     suspend fun getByCategory(categoryId: Int): List<Product>

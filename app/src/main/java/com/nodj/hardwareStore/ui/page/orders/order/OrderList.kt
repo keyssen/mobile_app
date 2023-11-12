@@ -7,49 +7,74 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.Order
-import com.nodj.hardwareStore.db.models.Order.Companion.getEmpty
-import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
+import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
+import com.nodj.hardwareStore.ui.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
+import com.nodj.hardwareStore.ui.page.orders.OrdersViewModel
+import com.nodj.hardwareStore.ui.product.list.ProductListViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderList(navController: NavController?) {
-    val context = LocalContext.current
-    val orders = remember { mutableStateListOf<Pair<Order, List<ProductFromOrder>>>() }
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            orders.clear()
-            orders.addAll(AppDatabase.getInstance(context).orderDao().getAllByUser(1).toList())
+fun OrderList(
+    navController: NavController,
+    viewModel: OrdersViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val productListUiState by viewModel.orderListUiState.collectAsState()
+    OrderList(
+        orderList = productListUiState.orderList.toList(),
+        onClickViewOrder = { id: Int ->
+            val route = Screen.OrderView.route.replace("{id}", id.toString())
+            navController.navigate(route)
         }
-    }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OrderList(
+    orderList: List<Pair<Order, List<ProductFromOrder>>>,
+    onClickViewOrder: (id: Int) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
 
@@ -61,10 +86,9 @@ fun OrderList(navController: NavController?) {
             bottom = 16.dp
         ),
         content = {
-            items(orders.size) { index ->
-                val order = orders[index].first
-                val listProduct = orders[index].second
-                val orderId = Screen.OrderView.route.replace("{id}", order.id.toString())
+            items(orderList.size) { index ->
+                val order = orderList[index].first
+                val listProduct = orderList[index].second
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -72,7 +96,7 @@ fun OrderList(navController: NavController?) {
                         .padding(top = 10.dp)
                         .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
                         .clickable {
-                            navController?.navigate(orderId)
+                            onClickViewOrder(order.id)
                         },
                 ) {
                     Column(
@@ -106,7 +130,7 @@ fun OrderListPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            OrderList(navController = null)
+//            OrderList(navController = null)
         }
     }
 }

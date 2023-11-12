@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.screen
+package com.nodj.hardwareStore.ui.page
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable

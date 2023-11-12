@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.db.database.AppDatabase
+import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
 import com.nodj.hardwareStore.ui.MyApplicationTheme
@@ -52,10 +54,13 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductForCart(context: Context, navController: NavController?, productInCart: AdvancedProduct) {
-    val productId = Screen.ProductView.route.replace("{id}", productInCart.product.id.toString())
-    var count by remember { mutableStateOf(productInCart.count) }
-    val coroutineScope = rememberCoroutineScope()
+fun ProductForCart(
+    advancedProduct: AdvancedProduct,
+    onClickPlus: (id: Int) -> Unit,
+    onClickMinus: (id: Int) -> Unit,
+    onClickDelete: (id: Int) -> Unit,
+    onClickViewProduct: (id: Int) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,7 +68,7 @@ fun ProductForCart(context: Context, navController: NavController?, productInCar
             .padding(top = 10.dp)
             .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
             .clickable {
-                navController?.navigate(productId)
+                onClickViewProduct(advancedProduct.product.id)
             },
     ) {
         Image(
@@ -71,7 +76,8 @@ fun ProductForCart(context: Context, navController: NavController?, productInCar
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = ImageBitmap.imageResource(productInCart.product.imageId),
+            bitmap = Product.toBitmap(advancedProduct.product.image).asImageBitmap(),
+//            bitmap = ImageBitmap.imageResource(advancedProduct.product.imageId),
             contentDescription = "Продукт"
         )
         Column(
@@ -85,11 +91,7 @@ fun ProductForCart(context: Context, navController: NavController?, productInCar
                     .padding(end = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = {
-                        coroutineScope.launch {
-                            updateUserWithProducts(context, productInCart.product.id, 1 , productInCart.count + 1)
-                        }
-                                     },
+                IconButton(onClick = { onClickPlus(advancedProduct.product.id) },
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .size(20.dp)) {
@@ -97,11 +99,11 @@ fun ProductForCart(context: Context, navController: NavController?, productInCar
                         Icons.Filled.Add,
                         contentDescription = null)
                 }
-                Text(text = count.toString(),
+                Text(text = advancedProduct.count.toString(),
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .size(20.dp))
-                IconButton(onClick = { navController?.navigate(productId) },
+                IconButton(onClick = { onClickMinus(advancedProduct.product.id) },
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .size(20.dp)) {
@@ -109,7 +111,7 @@ fun ProductForCart(context: Context, navController: NavController?, productInCar
                         ImageVector.vectorResource(id = R.drawable.minus),
                         contentDescription = null)
                 }
-                IconButton(onClick = { navController?.navigate(productId) },
+                IconButton(onClick = { onClickDelete(advancedProduct.product.id) },
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .size(20.dp)) {
@@ -126,12 +128,12 @@ fun ProductForCart(context: Context, navController: NavController?, productInCar
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "${productInCart.product.name}"
+                    text = "${advancedProduct.product.name}"
                 )
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "${productInCart.product.price}"
+                    text = "${advancedProduct.product.price}"
                 )
             }
 
@@ -139,8 +141,8 @@ fun ProductForCart(context: Context, navController: NavController?, productInCar
     }
 }
 
-suspend fun updateUserWithProducts(context: Context, productId: Int?, UserId: Int, count: Int) {
-    val userWithProducts = UserWithProducts(UserId.toLong(), productId!!.toLong(), count)
+suspend fun updateUserWithProducts(context: Context, productId: Int, UserId: Int, count: Int) {
+    val userWithProducts = UserWithProducts(UserId, productId, count)
     AppDatabase.getInstance(context).userWithProductsDao().update(userWithProducts)
 }
 
@@ -159,7 +161,7 @@ fun ProductForCartPreview() {
                     productInCart.value = AppDatabase.getInstance(context).productDao().get(1, 1)
                 }
             }
-            ProductForCart(context, navController = null, productInCart.value)
+//            ProductForCart(context, navController = null, productInCart.value)
         }
     }
 }

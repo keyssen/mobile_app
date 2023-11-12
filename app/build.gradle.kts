@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -6,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.nodj.hardwareStore"
-    compileSdk = 33
-    buildToolsVersion = "33.0.1"
+    compileSdk = 34
+    buildToolsVersion = "34.0.0"
     defaultConfig {
         applicationId = "com.nodj.hardwareStore"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -63,7 +65,11 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3:1.1.2")
+//    LiveData
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+//    Coil
+    implementation("io.coil-kt:coil:2.5.0")
 
     // Room
     val room_version = "2.5.2"
@@ -80,4 +86,9 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // Paging 3
+    val paging_version = "3.2.0-rc01"
+    implementation("androidx.paging:paging-runtime:$paging_version")
+    implementation("androidx.paging:paging-compose:$paging_version")
 }

@@ -10,27 +10,26 @@ import java.util.Objects
 )
 class UserWithProducts (
     @ColumnInfo(name = "user_id")
-    val userId: Long,
+    val userId: Int,
     @ColumnInfo(name = "product_id")
-    val productId: Long,
+    val productId: Int,
     @ColumnInfo(name = "count")
-    val count: Int
+    val count: Int = 0
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (javaClass != other?.javaClass) {
-            return false
-        }
-        other as UserWithProducts
-        if (userId == other.userId && productId == other.productId) {
-            return true
-        }
-        return false
-    }
 
     override fun hashCode(): Int {
         return Objects.hash(userId, productId)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as UserWithProducts
+
+        if (userId != other.userId) return false
+        if (productId != other.productId) return false
+
+        return true
     }
 }

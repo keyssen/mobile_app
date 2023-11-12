@@ -21,7 +21,7 @@ import java.util.Date
 data class Order(
     @ColumnInfo(name = "order_id")
     @PrimaryKey(autoGenerate = true)
-    val id: Int?,
+    val id: Int = 0,
     @ColumnInfo(name = "date")
     val date: Date,
     @ColumnInfo(name = "user_id", index = true)

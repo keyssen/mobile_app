@@ -21,9 +21,10 @@ data class User(
             return false
         }
         other as User
-        if (id != other.id) {
-            return false
-        }
+        if (id != other.id) return false
+        if (name != other.name) return false
+        if (role != other.role) return false
+        if (password != other.password) return false
         return true
     }
 

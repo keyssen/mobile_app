@@ -16,34 +16,63 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.models.Product
+import com.nodj.hardwareStore.ui.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
+import com.nodj.hardwareStore.ui.product.edit.CategoryUiState
+import com.nodj.hardwareStore.ui.product.edit.CategorysListUiState
+import com.nodj.hardwareStore.ui.product.edit.ProductDetails
+import com.nodj.hardwareStore.ui.product.edit.ProductEditViewModel
+import com.nodj.hardwareStore.ui.product.edit.ProductUiState
+import com.nodj.hardwareStore.ui.product.edit.toUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+@Composable
+fun ProductView(
+    navController: NavController,
+    viewModel: ProductEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    categoryViewModel: CategoryDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val coroutineScope = rememberCoroutineScope()
+    categoryViewModel.setCurrentCategory(viewModel.productUiState.productDetails.categoryId)
+    ProductView(
+        productUiState = viewModel.productUiState,
+        categoryUiState = categoryViewModel.categoryUiState,
+        onClick = {
+//            coroutineScope.launch {
+//                viewModel.saveProduct()
+//                navController.popBackStack()
+//            }
+        },
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductView(id: Int) {
-    val context = LocalContext.current
-    var product = remember { mutableStateOf<Product>(Product.getEmpty()) }
-    var category = remember { mutableStateOf<Category>(Category.getEmpty()) }
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            product.value = AppDatabase.getInstance(context).productDao().getByid(id)
-            category.value = AppDatabase.getInstance(context).categoryDao().getByid(product.value.categoryId)
-
-        }
-    }
+fun ProductView(
+    productUiState: ProductUiState,
+    categoryUiState: CategoryUiState,
+    onClick: () -> Unit,
+) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -55,23 +84,24 @@ fun ProductView(id: Int) {
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f),
-            painter = painterResource(product.value.imageId),
+            bitmap = Product.toBitmap(productUiState.productDetails.image).asImageBitmap(),
+//            painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
             contentDescription = "Продукт"
         )
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-            value = product.value.name, onValueChange = {}, readOnly = true,
+            value = productUiState.productDetails.name, onValueChange = {}, readOnly = true,
             label = {
-                Text(stringResource(id = R.string.product_name))
+                Text(stringResource(id = R.string.name))
             }
         )
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-            value = product.value.price.toString(), onValueChange = {}, readOnly = true,
+            value = productUiState.productDetails.price.toString(), onValueChange = {}, readOnly = true,
             label = {
                 Text(stringResource(id = R.string.product_price))
             }
         )
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-            value = category.value.name, onValueChange = {}, readOnly = true,
+            value = categoryUiState.category.name, onValueChange = {}, readOnly = true,
             label = {
                 Text(stringResource(id = R.string.product_category))
             }
@@ -82,12 +112,16 @@ fun ProductView(id: Int) {
 @Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun StudentViewPreview() {
+fun ProductViewPreview() {
     MyApplicationTheme {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            ProductView(id = 0)
+            ProductView(
+                productUiState = Product.getEmpty().toUiState(true),
+                categoryUiState = Category.getEmpty().toUiState(),
+                onClick = {}
+            )
         }
     }
 }

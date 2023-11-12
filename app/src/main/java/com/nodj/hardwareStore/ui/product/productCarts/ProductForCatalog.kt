@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +57,8 @@ fun ProductForCatalog(navController: NavController?, inTheBasket: Boolean = true
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = ImageBitmap.imageResource(product.imageId),
+            bitmap = Product.toBitmap(product.image).asImageBitmap(),
+//            bitmap = ImageBitmap.imageResource(product.imageId),
             contentDescription = "Продукт"
         )
         Column(
@@ -114,7 +116,7 @@ fun ProductForCatalogPreview() {
             val product = remember { mutableStateOf<Product>(Product.getEmpty()) }
             LaunchedEffect(Unit) {
                 withContext(Dispatchers.IO) {
-                    product.value = AppDatabase.getInstance(context).productDao().getByid(1)
+//                    product.value = AppDatabase.getInstance(context).productDao().getProduct(1)
                 }
             }
             ProductForCatalog(navController = null, false, product.value)

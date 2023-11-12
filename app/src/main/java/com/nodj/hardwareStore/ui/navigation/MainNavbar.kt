@@ -34,14 +34,17 @@ import androidx.navigation.navArgument
 import com.nodj.hardwareStore.db.theme.order.OrderView
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.UI.Search
+import com.nodj.hardwareStore.ui.category.CategorizedProducts
 import com.nodj.hardwareStore.ui.category.CategoryList
+import com.nodj.hardwareStore.ui.category.edit.CategoryEdit
+import com.nodj.hardwareStore.ui.product.ProductEdit
 import com.nodj.hardwareStore.ui.product.ProductList
+import com.nodj.hardwareStore.ui.page.cart.Cart
+import com.nodj.hardwareStore.ui.page.orders.Orders
+import com.nodj.hardwareStore.ui.page.Profile
+import com.nodj.hardwareStore.ui.page.SignIn
+import com.nodj.hardwareStore.ui.page.SignUp
 import com.nodj.hardwareStore.ui.product.ProductView
-import com.nodj.hardwareStore.ui.screen.Cart
-import com.nodj.hardwareStore.ui.screen.Orders
-import com.nodj.hardwareStore.ui.screen.Profile
-import com.nodj.hardwareStore.ui.screen.SignIn
-import com.nodj.hardwareStore.ui.screen.SignUp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,19 +124,37 @@ fun Navhost(
             Screen.ProductView.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
-            backStackEntry.arguments?.let { ProductView(it.getInt("id")) }
+            backStackEntry.arguments?.let { ProductView(navController) }
+        }
+        composable(
+            Screen.ProductEdit.route,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            ProductEdit(navController)
         }
         composable(
             Screen.OrderView.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) { backStackEntry ->
-            backStackEntry.arguments?.let { OrderView(navController, it.getInt("id")) }
+        ) {
+            OrderView(navController)
         }
         composable(
             Screen.CategoryView.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) { backStackEntry ->
-            backStackEntry.arguments?.let { ProductList(navController, "catalog", it.getInt("id")) }
+        ) {
+            CategorizedProducts(navController)
+        }
+        composable(
+            Screen.CategoryEdit.route,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            CategoryEdit(navController)
+        }
+        composable(
+            Screen.CartId.route,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            Cart(navController)
         }
     }
 }

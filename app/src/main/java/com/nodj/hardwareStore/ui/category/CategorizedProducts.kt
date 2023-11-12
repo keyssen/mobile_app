@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.product
+package com.nodj.hardwareStore.ui.category
 
 import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,8 +61,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.database.Converters
@@ -80,13 +77,11 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductList(
+fun CategorizedProducts(
     navController: NavController,
-    viewModel: ProductListViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: CategorizedProductsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val pagingProduct: LazyPagingItems<Product> = viewModel.call().collectAsLazyPagingItems()
-    val productListUiState by viewModel.productListUiState.collectAsState()
     val productListCartUiState by viewModel.productListCartUiState.collectAsState()
     Scaffold(
         topBar = {},
@@ -101,16 +96,11 @@ fun ProductList(
             }
         }
     ) { innerPadding ->
-//        ProductList2(
-//            modifier = Modifier.padding(innerPadding),
-//            productList = pagingProduct
-//        )
-        ProductList(
+        CategorizedProducts(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-//            productList = productListUiState.productList,
-            productList = pagingProduct,
+            productList = viewModel.categorizedProductsUiState.listProducts,
             productCartList = productListCartUiState.productListCart,
             onClick = { id: Int ->
                 val route = Screen.ProductEdit.route.replace("{id}", id.toString())
@@ -120,8 +110,8 @@ fun ProductList(
                 val route = Screen.ProductView.route.replace("{id}", id.toString())
                 navController.navigate(route)
             },
-            onClickViewCart = { id: Int ->
-                val route = Screen.CartId.route.replace("{id}", id.toString())
+            onClickViewCart = {
+                val route = Screen.Cart.route
                 navController.navigate(route)
             },
             onClickBuyProduct = { id: Int ->
@@ -140,94 +130,13 @@ fun ProductList(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductList2(
-    modifier: Modifier,
-    productList: LazyPagingItems<Product>,
-) {
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(1),
-
-        // content padding
-        contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 16.dp,
-            end = 12.dp,
-            bottom = 16.dp
-        ),
-        content = {
-            items(productList.itemCount) { index ->
-                val product = productList[index]
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .padding(top = 10.dp)
-                        .border(2.dp, Color.Gray, RoundedCornerShape(10.dp)),
-                ) {
-//                    Image(
-//                        modifier = Modifier
-//                            .width(110.dp)
-//                            .height(160.dp)
-//                            .padding(start = 10.dp),
-//                        bitmap = ImageBitmap.imageResource(product.imageId),
-//                        contentDescription = "Продукт"
-//                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ){
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ){
-                                Button(
-                                    modifier = Modifier
-                                        .width(130.dp)
-                                        .height(40.dp),
-                                    onClick = {  }) {
-                                    Text(stringResource(R.string.go_to_cart))
-                                }
-                            Box(
-                                modifier = Modifier
-                                    .padding(top = 7.dp, end = 10.dp)
-                            ){
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Home Icon",
-                                )
-                            }
-
-                        }
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 10.dp)
-                        ){
-                            Text(modifier = Modifier
-                                .fillMaxWidth(),
-                                text = "${product?.name}")
-                            Text(modifier = Modifier
-                                .fillMaxWidth(),
-                                text = "${product?.price}")
-                        }
-                    }
-                }
-            }
-        }
-    )
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 private fun SwipeToDelete(
     dismissState: DismissState,
     inCart: Boolean,
     product: Product,
     onClick: (id: Int) -> Unit,
     onClickViewProduct: (id: Int) -> Unit,
-    onClickViewCart: (id: Int) -> Unit,
+    onClickViewCart: () -> Unit,
     onClickBuyProduct: (id: Int) -> Unit
 ) {
     SwipeToDismiss(
@@ -278,18 +187,17 @@ private fun SwipeToDelete(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductList(
+fun CategorizedProducts(
     modifier: Modifier = Modifier,
-//    productList: List<Product>,
-    productList: LazyPagingItems<Product>,
+    productList: List<Product>,
     productCartList: List<Product>,
     onClick: (id: Int) -> Unit,
     onClickViewProduct: (id: Int) -> Unit,
     onSwipe: (product: Product) -> Unit,
     onClickBuyProduct: (id: Int) -> Unit,
-    onClickViewCart: (id: Int) -> Unit,
+    onClickViewCart: () -> Unit,
 ) {
-    if (productList.itemCount < 1) {
+    if (productList.isEmpty()) {
         Text(
             text = stringResource(R.string.product_empty_description),
             textAlign = TextAlign.Center,
@@ -310,30 +218,29 @@ fun ProductList(
                     bottom = 16.dp
                 ),
                 content = {
-                    items(productList.itemCount) { index ->
+                    items(productList.size) { index ->
                         var inCart = false
                         val product = productList[index]
-                        if (product != null){
-                            val dismissState: DismissState = rememberDismissState(
-                                positionalThreshold = { 200.dp.toPx() }
-                            )
-                            if (dismissState.isDismissed(direction = DismissDirection.EndToStart)) {
-                                onSwipe(product)
-                            }
+                        val dismissState: DismissState = rememberDismissState(
+                            positionalThreshold = { 200.dp.toPx() }
+                        )
 
-                            if (productCartList.contains(product)){
-                                inCart = true
-                            }
-                            SwipeToDelete(
-                                dismissState = dismissState,
-                                product = product,
-                                inCart = inCart,
-                                onClick = onClick,
-                                onClickViewProduct = onClickViewProduct,
-                                onClickBuyProduct = onClickBuyProduct,
-                                onClickViewCart = onClickViewCart
-                            )
+                        if (dismissState.isDismissed(direction = DismissDirection.EndToStart)) {
+                            onSwipe(product)
                         }
+
+                        if (productCartList.contains(product)){
+                            inCart = true
+                        }
+                        SwipeToDelete(
+                            dismissState = dismissState,
+                            product = product,
+                            inCart = inCart,
+                            onClick = onClick,
+                            onClickViewProduct = onClickViewProduct,
+                            onClickBuyProduct = onClickBuyProduct,
+                            onClickViewCart = onClickViewCart
+                        )
 //                    ProductForCatalog(navController = navController, product = products[index])
                     }
                 }
@@ -348,7 +255,7 @@ private fun ProductListItem(
     product: Product,
     modifier: Modifier = Modifier,
     onClickViewProduct: (id: Int) -> Unit,
-    onClickViewCart: (id: Int) -> Unit,
+    onClickViewCart: () -> Unit,
     onClickBuyProduct: (id: Int) -> Unit,
 ) {
     Row(
@@ -383,7 +290,7 @@ private fun ProductListItem(
                         modifier = Modifier
                             .width(130.dp)
                             .height(40.dp),
-                        onClick = { onClickViewCart(1) }) {
+                        onClick = { onClickViewCart() }) {
                         Text(stringResource(R.string.go_to_cart))
                     }
                 } else{
@@ -425,20 +332,20 @@ private fun ProductListItem(
 @Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun ProductListPreview() {
+fun CategorizedProductsPreview() {
     MyApplicationTheme {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-//            ProductList(
-//                productList = lazyOf(),
-//                productCartList = listOf(),
-//                onClick = {},
-//                onClickViewProduct = {},
-//                onClickViewCart = {},
-//                onSwipe = {},
-//                onClickBuyProduct = {}
-//            )
+            CategorizedProducts(
+                productList = listOf(),
+                productCartList = listOf(),
+                onClick = {},
+                onClickViewProduct = {},
+                onClickViewCart = {},
+                onSwipe = {},
+                onClickBuyProduct = {}
+            )
         }
     }
 }

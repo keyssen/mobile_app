@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.screen
+package com.nodj.hardwareStore.ui.page.orders
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,7 @@ import com.nodj.hardwareStore.ui.MyApplicationTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Orders(navController: NavController?) {
+fun Orders(navController: NavController) {
     Column(){
         OrderList(navController)
     }
@@ -27,7 +27,7 @@ fun FavoritesPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            Orders(navController = null)
+//            Orders(navController = null)
         }
     }
 }

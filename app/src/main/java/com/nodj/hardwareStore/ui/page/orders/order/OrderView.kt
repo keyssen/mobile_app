@@ -25,38 +25,75 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.db.database.AppDatabase
+import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
+import com.nodj.hardwareStore.ui.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
+import com.nodj.hardwareStore.ui.page.orders.OrdersViewModel
+import com.nodj.hardwareStore.ui.page.orders.order.OrderViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderView(navController: NavController?, id: Int) {
-    val context = LocalContext.current
-    val products = remember { mutableStateListOf<ProductFromOrder>() }
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            products.clear()
-            products.addAll(AppDatabase.getInstance(context).orderDao().getByOrder(id))
+fun OrderView(
+    navController: NavController,
+    viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val coroutineScope = rememberCoroutineScope()
+    OrderView(
+        productList = viewModel.orderUiState.productList,
+        productListCart = viewModel.productListCartUiState.productListCart,
+        onClickViewProduct = { id: Int ->
+            val route = Screen.ProductView.route.replace("{id}", id.toString())
+            navController.navigate(route)
+        },
+        onClickBuyProduct = { id: Int ->
+            coroutineScope.launch {
+                viewModel.addToCartProduct(id)
+            }
+        },
+        onClickViewCart = {
+            val route = Screen.Cart.route
+            navController.navigate(route)
         }
-    }
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OrderView(
+    productList: List<ProductFromOrder>,
+    productListCart: List<Product>,
+    onClickViewProduct: (id: Int) -> Unit,
+    onClickBuyProduct: (id: Int) -> Unit,
+    onClickViewCart: () -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         contentPadding = PaddingValues(
@@ -66,9 +103,12 @@ fun OrderView(navController: NavController?, id: Int) {
             bottom = 16.dp
         ),
         content = {
-            items(products.size) { index ->
-                val productFromOrder = products[index]
-                val productId = Screen.ProductView.route.replace("{id}", productFromOrder.product.id.toString())
+            items(productList.size) { index ->
+                val productFromOrder = productList[index]
+                var inCart = false
+                if (productListCart.contains(productFromOrder.product)){
+                    inCart = true
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -76,7 +116,7 @@ fun OrderView(navController: NavController?, id: Int) {
                         .padding(top = 10.dp)
                         .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
                         .clickable {
-                            navController?.navigate(productId)
+                            onClickViewProduct(productFromOrder.product.id)
                         },
                 ) {
                     Image(
@@ -84,7 +124,7 @@ fun OrderView(navController: NavController?, id: Int) {
                             .width(110.dp)
                             .height(160.dp)
                             .padding(start = 10.dp),
-                        bitmap = ImageBitmap.imageResource(productFromOrder.product.imageId),
+                        bitmap = Product.toBitmap(productFromOrder.product.image).asImageBitmap(),
                         contentDescription = "Продукт"
                     )
                     Column(
@@ -95,13 +135,24 @@ fun OrderView(navController: NavController?, id: Int) {
                             .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ){
-                            Button(
-                                modifier = Modifier
-                                    .padding(all = 10.dp)
-                                    .width(100.dp)
-                                    .height(40.dp),
-                                onClick = { navController?.navigate(productId) }) {
-                                Text("Купить1")
+                            if(inCart){
+                                Button(
+                                    modifier = Modifier
+                                        .padding(all = 10.dp)
+                                        .width(130.dp)
+                                        .height(40.dp),
+                                    onClick = { onClickViewCart() }) {
+                                    Text(stringResource(R.string.go_to_cart))
+                                }
+                            } else{
+                                Button(
+                                    modifier = Modifier
+                                        .padding(all = 10.dp)
+                                        .width(100.dp)
+                                        .height(40.dp),
+                                    onClick = { onClickBuyProduct(productFromOrder.product.id) }) {
+                                    Text(stringResource(R.string.product_buy))
+                                }
                             }
                             Text(text = productFromOrder.count.toString(),
                                 modifier = Modifier
@@ -138,7 +189,7 @@ fun OrderView(navController: NavController?, id: Int) {
                         Text(modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 10.dp, start = 10.dp),
-                            text = "Цена: ${products.sumOf { it.count * it.currentPrice }}")
+                            text = "Цена: ${productList.sumOf { it.count * it.currentPrice }}")
                     }
                 }
             }
@@ -154,7 +205,7 @@ fun OrderViewPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            OrderView(navController = null, id = 0)
+//            OrderView(navController = null, id = 0)
         }
     }
 }

@@ -21,6 +21,9 @@ enum class Screen(
     ProductList(
         "product-list", R.string.product_main_title, Icons.Filled.Home
     ),
+    ProductEdit(
+        "product-edit/{id}", R.string.product_main_title, Icons.Filled.Home
+    ),
     Search(
         "search", R.string.product_main_title, Icons.Filled.Search
     ),
@@ -33,11 +36,16 @@ enum class Screen(
     CategoryView(
         "category-view/{id}", R.string.product_view_title, showInBottomBar = false
     ),
+    CategoryEdit(
+        "category-edit/{id}", R.string.product_category, Icons.Filled.Home
+    ),
     Catalog(
         "catalog", R.string.product_catalog, Icons.Filled.List
     ),
     Cart(
         "cart", R.string.product_cart, Icons.Filled.ShoppingCart
+    ),CartId(
+        "cart/{id}", R.string.product_cart, Icons.Filled.ShoppingCart
     ),
     Orders(
         "orders", R.string.product_orders, iconId = R.drawable.list_check_icon

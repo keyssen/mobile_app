@@ -6,8 +6,8 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.nodj.hardwareStore.db.models.Order
-import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -20,20 +20,20 @@ interface OrderDao {
                 "JOIN order_with_products AS owp ON owp.order_id = o.order_id " +
                 "JOIN products AS p ON p.product_id = owp.product_id " +
                 "WHERE o.user_id = :userId")
-    suspend fun getAllByUser(userId: Int): Map<Order, List<ProductFromOrder>>
+    fun getAllByUser(userId: Int): Flow<Map<Order, List<ProductFromOrder>>>
 
     @Query("SELECT p.*, owp.count, owp.current_price " +
             "FROM orders AS o " +
             "JOIN order_with_products AS owp ON owp.order_id = o.order_id " +
             "JOIN products AS p ON p.product_id = owp.product_id " +
             "WHERE o.order_id = :orderId")
-    suspend fun getByOrder(orderId: Int): List<ProductFromOrder>
+    fun getByOrder(orderId: Int): Flow<List<ProductFromOrder>>
 
     @Query("select * from orders where user_id = :userId")
     suspend fun getByUserid(userId: Int): List<Order>
 
     @Insert
-    suspend fun insert(order: Order)
+    suspend fun insert(order: Order): Long
 
     @Update
     suspend fun update(order: Order)

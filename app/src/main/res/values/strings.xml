@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">HardwareStore</string>
-    <string name="product_name">Имя</string>
+    <string name="produc">Продукт</string>
+    <string name="name">Имя</string>
     <string name="product_price">Цена</string>
     <string name="product_category">Категория</string>
+    <string name="product_category_not_select">Категория не указана</string>
     <string name="product_phone">Телефон</string>
     <string name="product_email">e-mail</string>
     <string name="product_main_title">Список продуктов</string>
@@ -14,9 +16,8 @@
     <string name="product_sign_in">Вход</string>
     <string name="product_sign_up">Регистрация</string>
     <string name="about_title">О нас</string>
-    <string name="about_text">
-        <p>Это текст <b>о нас</b>!</p>\n\n
-        <p>Здесь могла быть Ваша реклама!</p>\n\n
-        <p>Наш сайт <a href="https://ulstu.ru">ulstu.ru</a></p>
-    </string>
+    <string name="product_empty_description">Товары отсутствуют</string>
+    <string name="save">Сохранить</string>
+    <string name="product_buy">Купить</string>
+    <string name="go_to_cart">В коризину</string>
 </resources>
