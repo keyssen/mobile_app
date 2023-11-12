@@ -57,7 +57,7 @@ fun ProductForCatalog(navController: NavController?, inTheBasket: Boolean = true
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = Product.toBitmap(product.image).asImageBitmap(),
+            bitmap = product.image.asImageBitmap(),
 //            bitmap = ImageBitmap.imageResource(product.imageId),
             contentDescription = "Продукт"
         )

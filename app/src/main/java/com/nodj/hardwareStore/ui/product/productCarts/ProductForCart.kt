@@ -76,7 +76,7 @@ fun ProductForCart(
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = Product.toBitmap(advancedProduct.product.image).asImageBitmap(),
+            bitmap = advancedProduct.product.image.asImageBitmap(),
 //            bitmap = ImageBitmap.imageResource(advancedProduct.product.imageId),
             contentDescription = "Продукт"
         )

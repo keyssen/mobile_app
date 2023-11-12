@@ -124,7 +124,7 @@ fun OrderView(
                             .width(110.dp)
                             .height(160.dp)
                             .padding(start = 10.dp),
-                        bitmap = Product.toBitmap(productFromOrder.product.image).asImageBitmap(),
+                        bitmap = productFromOrder.product.image.asImageBitmap(),
                         contentDescription = "Продукт"
                     )
                     Column(

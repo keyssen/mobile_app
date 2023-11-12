@@ -289,13 +289,6 @@ fun ProductList(
     onClickBuyProduct: (id: Int) -> Unit,
     onClickViewCart: (id: Int) -> Unit,
 ) {
-    if (productList.itemCount < 1) {
-        Text(
-            text = stringResource(R.string.product_empty_description),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge
-        )
-    } else{
         Column(
             modifier = modifier
         ) {
@@ -320,7 +313,6 @@ fun ProductList(
                             if (dismissState.isDismissed(direction = DismissDirection.EndToStart)) {
                                 onSwipe(product)
                             }
-
                             if (productCartList.contains(product)){
                                 inCart = true
                             }
@@ -339,7 +331,6 @@ fun ProductList(
                 }
             )
         }
-    }
 }
 
 @Composable
@@ -366,7 +357,7 @@ private fun ProductListItem(
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = Product.toBitmap(product.image).asImageBitmap(),
+            bitmap = product.image.asImageBitmap(),
             contentDescription = "Продукт"
         )
         Column(

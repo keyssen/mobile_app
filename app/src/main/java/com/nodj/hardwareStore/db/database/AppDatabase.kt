@@ -62,7 +62,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val category2 = Category(2, "Телефон")
                 categoryDao.insert(category1)
                 categoryDao.insert(category2)
-                val productDao = database.productDao()
+//                val productDao = database.productDao()
 
 //                val image = Image()
 //                val a = MainActivity()

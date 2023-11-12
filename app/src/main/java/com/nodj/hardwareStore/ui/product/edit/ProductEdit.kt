@@ -2,17 +2,23 @@ package com.nodj.hardwareStore.ui.product
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardOptions
@@ -61,6 +67,9 @@ import com.nodj.hardwareStore.ui.product.edit.ProductUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.IOException
+import java.io.ByteArrayOutputStream
+import java.io.FileInputStream
 
 @Composable
 fun ProductEdit(
@@ -68,6 +77,7 @@ fun ProductEdit(
     viewModel: ProductEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
     categoryViewModel: CategoryDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     categoryViewModel.setCurrentCategory(viewModel.productUiState.productDetails.categoryId)
     ProductEdit(
@@ -136,17 +146,52 @@ private fun CategoryDropDown(
 }
 
 @Composable
-fun ImageSelectionScreen() {
+fun ImageSelectionScreen(
+    productUiState: ProductUiState,
+    onUpdate: (ProductDetails) -> Unit,
+) {
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             uri?.let { saveImageToInternalStorage(context, it) }
+            onUpdate(productUiState.productDetails.copy(image = convertFileInputStreamToByteArray(context.openFileInput("image.jpg"))!!))
         }
     )
-
-    Button(onClick = { launcher.launch("image/*") }) {
+    Button(onClick = {
+        launcher.launch("image/*")
+    }) {
         Text(text = "Select Image")
+    }
+}
+
+@Composable
+fun ImageSelectionScreen324242() {
+    val context = LocalContext.current
+    var isFlag by remember { mutableStateOf(false) }
+    var byteArray: ByteArray = byteArrayOf(0x48, 101, 108, 108, 111)
+    Button(onClick = {
+        byteArray = convertFileInputStreamToByteArray(context.openFileInput("image.jpg"))!!
+        isFlag = true
+    }) {
+        Text(text = "Image")
+        if(isFlag){
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 10.dp)
+            ){
+                Image(
+                    modifier = Modifier
+                        .width(110.dp)
+                        .height(160.dp)
+                        .padding(start = 10.dp),
+//                    painter = painterResource(R.drawable.i2),
+                    bitmap = Product.toBitmap(byteArray).asImageBitmap(),
+                    contentDescription = "Продукт"
+                )
+            }
+        }
     }
 }
 
@@ -156,8 +201,33 @@ fun saveImageToInternalStorage(context: Context, uri: Uri) {
     inputStream?.use { input ->
         outputStream.use { output ->
             input.copyTo(output)
+            println(output.toString())
         }
     }
+}
+
+fun convertFileInputStreamToByteArray(fileInputStream: FileInputStream): ByteArray? {
+    try {
+        val buffer = ByteArray(1024) // Adjust the buffer size as needed
+        val byteArrayOutputStream = ByteArrayOutputStream()
+
+        var bytesRead: Int
+        while (fileInputStream.read(buffer).also { bytesRead = it } != -1) {
+            byteArrayOutputStream.write(buffer, 0, bytesRead)
+        }
+
+        return byteArrayOutputStream.toByteArray()
+    } catch (e: IOException) {
+        e.printStackTrace()
+    } finally {
+        try {
+            // Close the FileInputStream when done
+            fileInputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+    return null
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,6 +240,7 @@ fun ProductEdit(
     onUpdate: (ProductDetails) -> Unit,
     onCategoryUpdate: (Category) -> Unit
 ) {
+    val context = LocalContext.current
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
 
@@ -182,17 +253,22 @@ fun ProductEdit(
         ),
         content = {
             item {
-                ImageSelectionScreen()
-            }
-            item {
-                Image(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
-                    bitmap = Product.toBitmap(productUiState.productDetails.image).asImageBitmap(),
-//                    painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
-                    contentDescription = "Продукт"
+                ImageSelectionScreen(
+                    productUiState,
+                    onUpdate
                 )
+            }
+            if (productUiState.productDetails.image.size > 0){
+                item {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
+                        bitmap = Product.toBitmap(productUiState.productDetails.image).asImageBitmap(),
+//                    painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
+                        contentDescription = "Продукт"
+                    )
+                }
             }
             item {
                 OutlinedTextField(modifier = Modifier.fillMaxWidth(),

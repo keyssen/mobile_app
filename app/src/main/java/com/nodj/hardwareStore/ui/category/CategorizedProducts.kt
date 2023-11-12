@@ -273,7 +273,7 @@ private fun ProductListItem(
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = Product.toBitmap(product.image).asImageBitmap(),
+            bitmap = product.image.asImageBitmap(),
             contentDescription = "Продукт"
         )
         Column(
