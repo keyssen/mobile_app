@@ -52,6 +52,7 @@ class ProductListViewModel(
         PagingConfig(
             pageSize = 10,
             prefetchDistance = 10,
+            enablePlaceholders = false
         ),
         pagingSourceFactory = {
             productRepository.loadAllProductPaged()

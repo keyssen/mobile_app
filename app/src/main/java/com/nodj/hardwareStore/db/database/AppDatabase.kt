@@ -62,56 +62,64 @@ abstract class AppDatabase : RoomDatabase() {
                 val category2 = Category(2, "Телефон")
                 categoryDao.insert(category1)
                 categoryDao.insert(category2)
-//                val productDao = database.productDao()
+                val productDao = database.productDao()
 
+                val width = 100
+                val height = 100
+                val colors = IntArray(width * height) { 0xFF000000.toInt() } // Initialize with black color
+                val offset = 0
+                val stride = width
+                val config = Bitmap.Config.ARGB_8888
+
+                val bitmap = Bitmap.createBitmap(colors, offset, stride, width, height, config)
 //                val image = Image()
 //                val a = MainActivity()
-//                val product1 = Product(1, "ProductName1", 1000.00, a.getImage(R.drawable.i2)!!, 1)
-//                val product2 = Product(2, "ProductName2", 2000.00, a.getImage(R.drawable.i3)!!, 1)
-//                val product3 = Product(3, "ProductName3", 3000.00, a.getImage(R.drawable.i4)!!, 2)
-//                val product4 = Product(4, "ProductName4", 4000.00, a.getImage(R.drawable.i5)!!, 2)
-//                val product5 = Product(name = "ProductName4", price = 4000.00, image = a.getImage(R.drawable.i5)!!, categoryId = 2)
-//                productDao.insert(product1)
-//                productDao.insert(product2)
-//                productDao.insert(product3)
-//                productDao.insert(product4)
-////                for (i in 0..10000) {
-////                    productDao.insert(product5)
-////                }
-//                val userWithProductsDao = database.userWithProductsDao()
-//                val userWithProducts1 = UserWithProducts(1, 1, 3)
-//                val userWithProducts2 = UserWithProducts(1, 2, 2)
-//                val userWithProducts3 = UserWithProducts(1, 3, 5)
-//                userWithProductsDao.insert(userWithProducts1)
-//                userWithProductsDao.insert(userWithProducts2)
-//                userWithProductsDao.insert(userWithProducts3)
-//                val orderDao = database.orderDao()
-//                val order1 = Order(1, Date(), 1)
-//                val order2 = Order(2, Date(), 1)
-//                val order3 = Order(3, Date(), 1)
-//                val order4 = Order(4, Date(), 1)
-//                orderDao.insert(order1)
-//                orderDao.insert(order2)
-//                orderDao.insert(order3)
-//                orderDao.insert(order4)
-//                val orderWithProductsDao = database.orderWithProductsDao()
-//                val orderWithProductsDao1 = OrderWithProducts(1, 1, 3, 1000.0)
-//                val orderWithProductsDao2 = OrderWithProducts(1, 2, 2, 2000.0)
-//                val orderWithProductsDao3 = OrderWithProducts(1, 3, 5, 3000.0)
-//
-//                val orderWithProductsDao4 = OrderWithProducts(2, 1, 3, 1000.0)
-//
-//                val orderWithProductsDao5 = OrderWithProducts(3, 1, 3, 1000.0)
-//                val orderWithProductsDao6 = OrderWithProducts(3, 2, 2, 2000.0)
-//
-//                val orderWithProductsDao7 = OrderWithProducts(4, 1, 3, 1000.0)
-//                orderWithProductsDao.insert(orderWithProductsDao1)
-//                orderWithProductsDao.insert(orderWithProductsDao2)
-//                orderWithProductsDao.insert(orderWithProductsDao3)
-//                orderWithProductsDao.insert(orderWithProductsDao4)
-//                orderWithProductsDao.insert(orderWithProductsDao5)
-//                orderWithProductsDao.insert(orderWithProductsDao6)
-//                orderWithProductsDao.insert(orderWithProductsDao7)
+                val product1 = Product(1, "ProductName1", 1000.00, bitmap, 1)
+                val product2 = Product(2, "ProductName2", 2000.00, bitmap, 1)
+                val product3 = Product(3, "ProductName3", 3000.00, bitmap, 2)
+                val product4 = Product(4, "ProductName4", 4000.00, bitmap, 2)
+                val product5 = Product(name = "ProductName4", price = 4000.00, image = bitmap, categoryId = 2)
+                productDao.insert(product1)
+                productDao.insert(product2)
+                productDao.insert(product3)
+                productDao.insert(product4)
+                for (i in 0..10000) {
+                    productDao.insert(product5)
+                }
+                val userWithProductsDao = database.userWithProductsDao()
+                val userWithProducts1 = UserWithProducts(1, 1, 3)
+                val userWithProducts2 = UserWithProducts(1, 2, 2)
+                val userWithProducts3 = UserWithProducts(1, 3, 5)
+                userWithProductsDao.insert(userWithProducts1)
+                userWithProductsDao.insert(userWithProducts2)
+                userWithProductsDao.insert(userWithProducts3)
+                val orderDao = database.orderDao()
+                val order1 = Order(1, Date(), 1)
+                val order2 = Order(2, Date(), 1)
+                val order3 = Order(3, Date(), 1)
+                val order4 = Order(4, Date(), 1)
+                orderDao.insert(order1)
+                orderDao.insert(order2)
+                orderDao.insert(order3)
+                orderDao.insert(order4)
+                val orderWithProductsDao = database.orderWithProductsDao()
+                val orderWithProductsDao1 = OrderWithProducts(1, 1, 3, 1000.0)
+                val orderWithProductsDao2 = OrderWithProducts(1, 2, 2, 2000.0)
+                val orderWithProductsDao3 = OrderWithProducts(1, 3, 5, 3000.0)
+
+                val orderWithProductsDao4 = OrderWithProducts(2, 1, 3, 1000.0)
+
+                val orderWithProductsDao5 = OrderWithProducts(3, 1, 3, 1000.0)
+                val orderWithProductsDao6 = OrderWithProducts(3, 2, 2, 2000.0)
+
+                val orderWithProductsDao7 = OrderWithProducts(4, 1, 3, 1000.0)
+                orderWithProductsDao.insert(orderWithProductsDao1)
+                orderWithProductsDao.insert(orderWithProductsDao2)
+                orderWithProductsDao.insert(orderWithProductsDao3)
+                orderWithProductsDao.insert(orderWithProductsDao4)
+                orderWithProductsDao.insert(orderWithProductsDao5)
+                orderWithProductsDao.insert(orderWithProductsDao6)
+                orderWithProductsDao.insert(orderWithProductsDao7)
             }
         }
 

@@ -219,7 +219,7 @@ fun ProductList(
                             if (dismissState.isDismissed(direction = DismissDirection.EndToStart)) {
                                 onSwipe(product)
                             }
-                            if (Product.contains(productList, product.id)){
+                            if (Product.contains(productCartList, product.id)){
                                 inCart = true
                             }
                             SwipeToDelete(

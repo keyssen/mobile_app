@@ -75,9 +75,9 @@ data class Product(
             return outputStream.toByteArray()
         }
 
-        fun contains(listProduct: LazyPagingItems<Product>, id: Int): Boolean{
-            for (i in 0..listProduct.itemCount) {
-                if(listProduct[i]!!.id == id) return true
+        fun contains(listProduct: List<Product>, id: Int): Boolean{
+            listProduct.forEach {
+                if(it.id == id) return true
             }
             return false
         }
