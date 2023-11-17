@@ -57,10 +57,7 @@ class ProductListViewModel(
         pagingSourceFactory = {
             productRepository.loadAllProductPaged()
         }
-    ).flow
-
-    val productPagedData: Flow<PagingData<Product>> = call()
-        .cachedIn(viewModelScope)
+    ).flow.cachedIn(viewModelScope)
 }
 
 data class ProductListUiState(val productList: List<Product> = listOf())
