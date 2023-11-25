@@ -38,13 +38,13 @@ class ProductListInCartViewModel(
     }
 
     suspend fun plusProductInCart(userId: Int, productid: Int, ) {
-        val product = productRepository.get(userId, productid)
+        val product = userWithProductsRepository.getByUserProduct(productid, userId)
         userWithProductsRepository.update(UserWithProducts(userId, productid, product.count + 1))
     }
 
     suspend fun minusProductInCart(userId: Int, productid: Int, ) {
-        val product = productRepository.get(userId, productid)
-        if (product.count - 1 == 0){
+        val product = userWithProductsRepository.getByUserProduct(productid, userId)
+        if (product.count - 1 <= 0){
             deleteProductInCart(userId, productid)
         }else{
             userWithProductsRepository.update(UserWithProducts(userId, productid, product.count - 1))

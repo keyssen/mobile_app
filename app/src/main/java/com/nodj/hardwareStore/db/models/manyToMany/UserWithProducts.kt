@@ -29,6 +29,7 @@ class UserWithProducts (
 
         if (userId != other.userId) return false
         if (productId != other.productId) return false
+        if (count != other.count) return false
 
         return true
     }

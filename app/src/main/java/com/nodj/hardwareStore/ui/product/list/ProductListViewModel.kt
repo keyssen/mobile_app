@@ -45,7 +45,8 @@ class ProductListViewModel(
     }
 
     suspend fun addToCartProduct(productid: Int) {
-        userWithProductsRepository.insert(UserWithProducts(1, productid, 1))
+        val user = UserWithProducts(1, productid, 1)
+        userWithProductsRepository.insert(user)
     }
 
     fun call(): Flow<PagingData<Product>> = Pager(
