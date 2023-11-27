@@ -1,8 +1,9 @@
 package com.nodj.hardwareStore.ui.product
 
 import android.content.res.Configuration
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,25 +11,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
@@ -45,47 +44,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.nodj.hardwareStore.R
-import com.nodj.hardwareStore.db.database.AppDatabase
-import com.nodj.hardwareStore.db.database.Converters
+import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
-import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
-import com.nodj.hardwareStore.ui.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.product.list.ProductListViewModel
-import com.nodj.hardwareStore.ui.product.productCarts.ProductForCatalog
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ProductList(
     navController: NavController,
     viewModel: ProductListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val pagingProduct: LazyPagingItems<Product> = viewModel.call().collectAsLazyPagingItems()
+    val productListUiState = viewModel.productListUiState.collectAsLazyPagingItems()
     val productListCartUiState by viewModel.productListCartUiState.collectAsState()
     Scaffold(
         topBar = {},
@@ -101,10 +95,11 @@ fun ProductList(
         }
     ) { innerPadding ->
         ProductList(
+//            update = { viewModel.update() },
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            productList = pagingProduct,
+            productList = productListUiState,
             productCartList = productListCartUiState.productListCart,
             onClick = { id: Int ->
                 val route = Screen.ProductEdit.route.replace("{id}", id.toString())
@@ -133,7 +128,6 @@ fun ProductList(
 }
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDelete(
@@ -146,29 +140,13 @@ private fun SwipeToDelete(
     onClickBuyProduct: (id: Int) -> Unit
 ) {
     SwipeToDismiss(
+        modifier = Modifier.zIndex(1f),
         state = dismissState,
         directions = setOf(
             DismissDirection.EndToStart
         ),
         background = {
-            val iconScale by animateFloatAsState(
-                targetValue = if (dismissState.targetValue == DismissValue.DismissedToStart) 1.3f else 0.0f,
-                label = ""
-            )
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(end = 16.dp),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Icon(
-                    modifier = Modifier
-                        .scale(iconScale),
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete",
-                    tint = Color.White
-                )
-            }
+            DismissBackground(dismissState)
         },
         dismissContent = {
             ProductListItem(
@@ -184,10 +162,38 @@ private fun SwipeToDelete(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun DismissBackground(dismissState: DismissState) {
+    val color = when (dismissState.dismissDirection) {
+        DismissDirection.StartToEnd -> Color.Transparent
+        DismissDirection.EndToStart -> Color(0xFFFF1744)
+        null -> Color.Transparent
+    }
+    val direction = dismissState.dismissDirection
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(12.dp, 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
+    ) {
+        if (direction == DismissDirection.EndToStart) {
+            Icon(
+                Icons.Default.Delete,
+                contentDescription = "delete",
+                tint = Color.White
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
 fun ProductList(
+//    update: () -> Unit,
     modifier: Modifier = Modifier,
     productList: LazyPagingItems<Product>,
     productCartList: List<Product>,
@@ -197,31 +203,48 @@ fun ProductList(
     onClickBuyProduct: (id: Int) -> Unit,
     onClickViewCart: (id: Int) -> Unit,
 ) {
+    val refreshScope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+    fun refresh() = refreshScope.launch {
+        refreshing = true
+//        update()
+        productList.refresh()
+        refreshing = false
+    }
+
+    val state = rememberPullRefreshState(refreshing, ::refresh)
+    Box(
+        modifier = modifier.pullRefresh(state)
+    ) {
         Column(
             modifier = modifier
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(1),
-                contentPadding = PaddingValues(
-                    start = 12.dp,
-                    top = 16.dp,
-                    end = 12.dp,
-                    bottom = 16.dp
-                ),
-                content = {
-                    items(productList.itemCount) { index ->
-                        var inCart = false
-                        val product = productList[index]
-                        if (product != null){
-                            val dismissState: DismissState = rememberDismissState(
-                                positionalThreshold = { 200.dp.toPx() }
-                            )
-                            if (dismissState.isDismissed(direction = DismissDirection.EndToStart)) {
-                                onSwipe(product)
-                            }
-                            if (Product.contains(productCartList, product.id)){
-                                inCart = true
-                            }
+            LazyColumn(modifier = Modifier.padding(all = 10.dp)) {
+                items(
+                    count = productList.itemCount,
+                    key = productList.itemKey(),
+                    contentType = productList.itemContentType()
+                ) { index ->
+                    var inCart = false
+                    val product = productList[index]
+                    if (product != null) {
+                        var show by remember { mutableStateOf(true) }
+                        val dismissState = rememberDismissState(
+                            confirmValueChange = {
+                                if (it == DismissValue.DismissedToStart ||
+                                    it == DismissValue.DismissedToEnd
+                                ) {
+                                    show = false
+                                    true
+                                } else false
+                            }, positionalThreshold = { 200.dp.toPx() }
+                        )
+                        if (Product.contains(productCartList, product.id)) {
+                            inCart = true
+                        }
+                        AnimatedVisibility(
+                            show, exit = fadeOut(spring())
+                        ) {
                             SwipeToDelete(
                                 dismissState = dismissState,
                                 product = product,
@@ -232,10 +255,23 @@ fun ProductList(
                                 onClickViewCart = onClickViewCart
                             )
                         }
+                        LaunchedEffect(show) {
+                            if (!show) {
+                                delay(800)
+                                onSwipe(product)
+                            }
+                        }
                     }
                 }
+            }
+            PullRefreshIndicator(
+                refreshing, state,
+                Modifier
+                    .align(CenterHorizontally)
+                    .zIndex(100f)
             )
         }
+    }
 }
 
 @Composable
@@ -262,27 +298,28 @@ private fun ProductListItem(
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = product.image.asImageBitmap(),
+            bitmap = Product.toBitmap(product.image).asImageBitmap(),
             contentDescription = "Продукт"
         )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-        ){
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 10.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                if(inCart){
+            ) {
+                if (inCart) {
                     Button(
                         modifier = Modifier
                             .width(130.dp)
                             .height(40.dp),
-                        onClick = { onClickViewCart(1) }) {
+                        onClick = { /*onClickViewCart(1)*/ }) {
                         Text(stringResource(R.string.go_to_cart))
                     }
-                } else{
+                } else {
                     Button(
                         modifier = Modifier
                             .width(100.dp)
@@ -293,26 +330,31 @@ private fun ProductListItem(
                 }
                 Box(
                     modifier = Modifier
-                    .padding(top = 7.dp, end = 10.dp)
-                ){
+                        .padding(top = 7.dp, end = 10.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Home Icon",
                         modifier = modifier
-                        )
+                    )
                 }
 
             }
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp)
-            ){
-                Text(modifier = Modifier
-                    .fillMaxWidth(),
-                    text = "${product.name}")
-                Text(modifier = Modifier
-                    .fillMaxWidth(),
-                    text = "${product.price}")
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = "${product.name}"
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = "${product.price}"
+                )
             }
         }
     }

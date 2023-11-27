@@ -2,13 +2,11 @@ package com.nodj.hardwareStore.db.models
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.annotation.DrawableRes
-import androidx.paging.compose.LazyPagingItems
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
-import com.nodj.hardwareStore.R
 import java.io.ByteArrayOutputStream
 
 @Entity(
@@ -18,7 +16,7 @@ import java.io.ByteArrayOutputStream
             entity = Category::class,
             parentColumns = ["category_id"],
             childColumns = ["category_id"],
-            onDelete = ForeignKey.RESTRICT,
+            onDelete = CASCADE,
             onUpdate = ForeignKey.RESTRICT
         )
     ]
@@ -30,9 +28,9 @@ data class Product(
     val name: String,
     val price: Double,
     @ColumnInfo(name = "image_id", typeAffinity = ColumnInfo.BLOB)
-    val image: Bitmap,
+    val image: ByteArray,
     @ColumnInfo(name = "category_id", index = true)
-    val categoryId: Int
+    val categoryId: Int?
 ) {
 
     override fun hashCode(): Int {
@@ -60,7 +58,7 @@ data class Product(
                 id = 0,
                 name = "name",
                 price = 0.0,
-                image = toBitmap(byteArrayOf()),
+                image = byteArrayOf(),
                 categoryId = -1
             )
         }
@@ -75,9 +73,9 @@ data class Product(
             return outputStream.toByteArray()
         }
 
-        fun contains(listProduct: List<Product>, id: Int): Boolean{
+        fun contains(listProduct: List<Product>, id: Int): Boolean {
             listProduct.forEach {
-                if(it.id == id) return true
+                if (it.id == id) return true
             }
             return false
         }

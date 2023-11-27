@@ -1,10 +1,8 @@
 package com.nodj.hardwareStore.ui.category
 
 import android.content.res.Configuration
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,8 +23,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
@@ -44,17 +39,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,18 +52,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
-import com.nodj.hardwareStore.db.database.AppDatabase
-import com.nodj.hardwareStore.db.database.Converters
+import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
-import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
-import com.nodj.hardwareStore.ui.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
-import com.nodj.hardwareStore.ui.product.list.ProductListViewModel
-import com.nodj.hardwareStore.ui.product.productCarts.ProductForCatalog
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +65,7 @@ fun CategorizedProducts(
     viewModel: CategorizedProductsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val productListCartUiState by viewModel.productListCartUiState.collectAsState()
+//    val productListCartUiState by viewModel.productListCartUiState.collectAsState()
     Scaffold(
         topBar = {},
         floatingActionButton = {
@@ -101,7 +84,7 @@ fun CategorizedProducts(
                 .padding(innerPadding)
                 .fillMaxSize(),
             productList = viewModel.categorizedProductsUiState.listProducts,
-            productCartList = productListCartUiState.productListCart,
+//            productCartList = productListCartUiState.productListCart,
             onClick = { id: Int ->
                 val route = Screen.ProductEdit.route.replace("{id}", id.toString())
                 navController.navigate(route)
@@ -190,7 +173,7 @@ private fun SwipeToDelete(
 fun CategorizedProducts(
     modifier: Modifier = Modifier,
     productList: List<Product>,
-    productCartList: List<Product>,
+//    productCartList: List<Product>,
     onClick: (id: Int) -> Unit,
     onClickViewProduct: (id: Int) -> Unit,
     onSwipe: (product: Product) -> Unit,
@@ -203,7 +186,7 @@ fun CategorizedProducts(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge
         )
-    } else{
+    } else {
         Column(
             modifier = modifier
         ) {
@@ -229,9 +212,9 @@ fun CategorizedProducts(
                             onSwipe(product)
                         }
 
-                        if (productCartList.contains(product)){
-                            inCart = true
-                        }
+//                        if (productCartList.contains(product)) {
+//                            inCart = true
+//                        }
                         SwipeToDelete(
                             dismissState = dismissState,
                             product = product,
@@ -273,19 +256,20 @@ private fun ProductListItem(
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = product.image.asImageBitmap(),
+            bitmap = Product.toBitmap(product.image).asImageBitmap(),
             contentDescription = "Продукт"
         )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-        ){
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 10.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                if(inCart){
+            ) {
+                if (inCart) {
                     Button(
                         modifier = Modifier
                             .width(130.dp)
@@ -293,7 +277,7 @@ private fun ProductListItem(
                         onClick = { onClickViewCart() }) {
                         Text(stringResource(R.string.go_to_cart))
                     }
-                } else{
+                } else {
                     Button(
                         modifier = Modifier
                             .width(100.dp)
@@ -304,26 +288,31 @@ private fun ProductListItem(
                 }
                 Box(
                     modifier = Modifier
-                    .padding(top = 7.dp, end = 10.dp)
-                ){
+                        .padding(top = 7.dp, end = 10.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Home Icon",
                         modifier = modifier
-                        )
+                    )
                 }
 
             }
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp)
-            ){
-                Text(modifier = Modifier
-                    .fillMaxWidth(),
-                    text = "${product.name}")
-                Text(modifier = Modifier
-                    .fillMaxWidth(),
-                    text = "${product.price}")
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = "${product.name}"
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = "${product.price}"
+                )
             }
         }
     }
@@ -339,7 +328,7 @@ fun CategorizedProductsPreview() {
         ) {
             CategorizedProducts(
                 productList = listOf(),
-                productCartList = listOf(),
+//                productCartList = listOf(),
                 onClick = {},
                 onClickViewProduct = {},
                 onClickViewCart = {},

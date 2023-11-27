@@ -9,9 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductRepository {
-    fun getAll(): Flow<List<Product>>
 
-    fun getProduct(id: Int): Flow<Product>
+    suspend fun getProduct(id: Int): Product
 
     fun loadAllProductPaged(): PagingSource<Int, Product>
 
@@ -21,7 +20,7 @@ interface ProductRepository {
 
     suspend fun getAllByUser(userId: Int): List<AdvancedProduct>
 
-    fun getAllByUserProduct(userId: Int): Flow<List<Product>>
+    suspend fun getAllByUserProduct(userId: Int): List<Product>
 
     suspend fun getByCategory(categoryId: Int): List<Product>
 

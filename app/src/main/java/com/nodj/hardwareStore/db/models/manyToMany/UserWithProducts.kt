@@ -8,7 +8,7 @@ import java.util.Objects
     tableName = "user_with_products",
     primaryKeys = ["user_id", "product_id"],
 )
-class UserWithProducts (
+class UserWithProducts(
     @ColumnInfo(name = "user_id")
     val userId: Int,
     @ColumnInfo(name = "product_id")
@@ -32,5 +32,15 @@ class UserWithProducts (
         if (count != other.count) return false
 
         return true
+    }
+
+    companion object {
+        fun getEmpty(): UserWithProducts {
+            return UserWithProducts(
+                userId = 0,
+                productId = 0,
+                count = 0,
+            )
+        }
     }
 }

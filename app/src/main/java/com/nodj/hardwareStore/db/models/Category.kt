@@ -5,12 +5,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "categories")
-data class Category (
+data class Category(
     @ColumnInfo(name = "category_id")
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String
-){
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true

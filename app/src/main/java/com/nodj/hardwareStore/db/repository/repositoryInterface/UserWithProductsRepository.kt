@@ -7,6 +7,8 @@ import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
 interface UserWithProductsRepository {
     suspend fun getByUserProduct(productId: Int, userId: Int): UserWithProducts
 
+    suspend fun getAll(): List<UserWithProducts>
+
     suspend fun deleteAllByUser(userId: Int)
 
     suspend fun insert(userWithProducts: UserWithProducts)

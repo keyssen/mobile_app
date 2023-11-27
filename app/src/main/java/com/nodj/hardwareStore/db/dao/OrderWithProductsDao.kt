@@ -9,7 +9,7 @@ import com.nodj.hardwareStore.db.models.manyToMany.OrderWithProducts
 @Dao
 interface OrderWithProductsDao {
     @Insert
-    suspend fun insert(orderWithProducts: OrderWithProducts)
+    suspend fun insert(vararg orderWithProducts: OrderWithProducts)
 
     @Update
     suspend fun update(orderWithProducts: OrderWithProducts)

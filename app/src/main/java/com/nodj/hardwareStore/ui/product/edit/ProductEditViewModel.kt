@@ -1,26 +1,20 @@
 package com.nodj.hardwareStore.ui.product.edit
 
-import androidx.annotation.DrawableRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.ColumnInfo
 import com.nodj.hardwareStore.db.models.Product
-import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
-import com.nodj.hardwareStore.db.repository.repositoryInterface.ProductRepository
-import com.nodj.hardwareStore.db.repository.repositoryInterface.UserWithProductsRepository
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
+import com.nodj.hardwareStore.db.repository.repositoryInterface.IncompleteProductRepository
 import kotlinx.coroutines.launch
 
 class ProductEditViewModel(
     savedStateHandle: SavedStateHandle,
-    private val productRepository: ProductRepository,
+    private val productRepository: IncompleteProductRepository,
 
-) : ViewModel() {
+    ) : ViewModel() {
 
     var productUiState by mutableStateOf(ProductUiState())
         private set
@@ -31,8 +25,6 @@ class ProductEditViewModel(
         viewModelScope.launch {
             if (productid > 0) {
                 productUiState = productRepository.getProduct(productid)
-                    .filterNotNull()
-                    .first()
                     .toUiState(true)
             }
         }
@@ -81,15 +73,15 @@ fun ProductDetails.toProduct(id: Int = 0): Product = Product(
     id = id,
     name = name,
     price = price,
-    image = Product.toBitmap(image),
+    image = image,
     categoryId = categoryId,
 )
 
 fun Product.toDetails(): ProductDetails = ProductDetails(
     name = name,
     price = price,
-    image = Product.fromBitmap(image),
-    categoryId = categoryId
+    image = image,
+    categoryId = categoryId!!
 )
 
 fun Product.toUiState(isEntryValid: Boolean = false): ProductUiState = ProductUiState(

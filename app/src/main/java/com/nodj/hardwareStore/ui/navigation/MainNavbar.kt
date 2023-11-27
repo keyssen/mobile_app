@@ -37,14 +37,13 @@ import com.nodj.hardwareStore.ui.UI.Search
 import com.nodj.hardwareStore.ui.category.CategorizedProducts
 import com.nodj.hardwareStore.ui.category.CategoryList
 import com.nodj.hardwareStore.ui.category.edit.CategoryEdit
-import com.nodj.hardwareStore.ui.product.ProductEdit
-import com.nodj.hardwareStore.ui.product.ProductList
-import com.nodj.hardwareStore.ui.page.cart.Cart
-import com.nodj.hardwareStore.ui.page.orders.Orders
-import com.nodj.hardwareStore.ui.page.Profile
 import com.nodj.hardwareStore.ui.page.SignIn
 import com.nodj.hardwareStore.ui.page.SignUp
-import com.nodj.hardwareStore.ui.product.ProductView
+import com.nodj.hardwareStore.ui.page.cart.Cart
+import com.nodj.hardwareStore.ui.page.orders.Orders
+import com.nodj.hardwareStore.ui.page.profile.Profile
+import com.nodj.hardwareStore.ui.product.ProductEdit
+import com.nodj.hardwareStore.ui.product.ProductList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +57,7 @@ fun TopBar(currentScreen: Screen?) {
         if (currentScreen == null) {
             Search()
         }
-        if (currentScreen?.route == "sign-in" || currentScreen?.route == "sign-up"|| currentScreen?.route == "profile") {
+        if (currentScreen?.route == "sign-in" || currentScreen?.route == "sign-up" || currentScreen?.route == "profile") {
             Text(stringResource(currentScreen.resourceId))
         } else {
             Search()
@@ -73,20 +72,24 @@ fun Navbar(
     modifier: Modifier = Modifier
 ) {
     val appBarBackgroundColor = MaterialTheme.colorScheme.secondary
-    NavigationBar(modifier,
-        containerColor = appBarBackgroundColor) {
+    NavigationBar(
+        modifier,
+        containerColor = appBarBackgroundColor
+    ) {
         Screen.bottomBarItems.forEach { screen ->
             NavigationBarItem(
                 icon = {
-                    if (screen.icon == null){
-                        if (screen.iconId != null){
-                            Icon(painter = painterResource(id = screen.iconId) , contentDescription = null)
+                    if (screen.icon == null) {
+                        if (screen.iconId != null) {
+                            Icon(
+                                painter = painterResource(id = screen.iconId),
+                                contentDescription = null
+                            )
                         }
-                    }
-                    else{
+                    } else {
                         Icon(screen.icon, contentDescription = null)
                     }
-                       },
+                },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
                     navController.navigate(screen.route) {
@@ -110,22 +113,10 @@ fun Navhost(
 ) {
     NavHost(
         navController,
-        startDestination = Screen.ProductList.route,
+        startDestination = Screen.Catalog.route,
         modifier.padding(innerPadding)
     ) {
         composable(Screen.ProductList.route) { ProductList(navController) }
-        composable(Screen.Catalog.route) { CategoryList(navController) }
-        composable(Screen.Cart.route) { Cart(navController) }
-        composable(Screen.Orders.route) { Orders(navController) }
-        composable(Screen.SignIn.route) { SignIn(navController) }
-        composable(Screen.SignUp.route) { SignUp(navController) }
-        composable(Screen.Profile.route) { Profile(navController) }
-        composable(
-            Screen.ProductView.route,
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) { backStackEntry ->
-            backStackEntry.arguments?.let { ProductView(navController) }
-        }
         composable(
             Screen.ProductEdit.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
@@ -139,23 +130,29 @@ fun Navhost(
             OrderView(navController)
         }
         composable(
-            Screen.CategoryView.route,
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) {
-            CategorizedProducts(navController)
-        }
-        composable(
             Screen.CategoryEdit.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
             CategoryEdit(navController)
         }
         composable(
-            Screen.CartId.route,
+            Screen.CategoryView.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            Cart(navController)
+            CategorizedProducts(navController)
         }
+//        composable(
+//            Screen.CartId.route,
+//            arguments = listOf(navArgument("id") { type = NavType.IntType })
+//        ) {
+//            Cart(navController)
+//        }
+        composable(Screen.Catalog.route) { CategoryList(navController) }
+        composable(Screen.Cart.route) { Cart(navController) }
+        composable(Screen.Orders.route) { Orders(navController) }
+        composable(Screen.SignIn.route) { SignIn(navController) }
+        composable(Screen.SignUp.route) { SignUp(navController) }
+        composable(Screen.Profile.route) { Profile(navController) }
     }
 }
 

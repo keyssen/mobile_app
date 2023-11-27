@@ -2,16 +2,12 @@ package com.nodj.hardwareStore.ui.product
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,18 +30,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,10 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
-import com.nodj.hardwareStore.db.database.AppDatabase
+import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.models.Product
-import com.nodj.hardwareStore.ui.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
 import com.nodj.hardwareStore.ui.product.edit.CategoryUiState
@@ -64,9 +56,7 @@ import com.nodj.hardwareStore.ui.product.edit.CategorysListUiState
 import com.nodj.hardwareStore.ui.product.edit.ProductDetails
 import com.nodj.hardwareStore.ui.product.edit.ProductEditViewModel
 import com.nodj.hardwareStore.ui.product.edit.ProductUiState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okio.IOException
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
@@ -83,7 +73,7 @@ fun ProductEdit(
     ProductEdit(
         productUiState = viewModel.productUiState,
         categoryUiState = categoryViewModel.categoryUiState,
-        categorysListUiState = categoryViewModel.categorysListUiState,
+        categorysListUiState = categoryViewModel.categoriesListUiState,
         onClick = {
             coroutineScope.launch {
                 viewModel.saveProduct()
@@ -155,7 +145,13 @@ fun ImageSelectionScreen(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             uri?.let { saveImageToInternalStorage(context, it) }
-            onUpdate(productUiState.productDetails.copy(image = convertFileInputStreamToByteArray(context.openFileInput("image.jpg"))!!))
+            onUpdate(
+                productUiState.productDetails.copy(
+                    image = convertFileInputStreamToByteArray(
+                        context.openFileInput("image.jpg")
+                    )!!
+                )
+            )
         }
     )
     Button(onClick = {
@@ -175,12 +171,12 @@ fun ImageSelectionScreen324242() {
         isFlag = true
     }) {
         Text(text = "Image")
-        if(isFlag){
+        if (isFlag) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 10.dp)
-            ){
+            ) {
                 Image(
                     modifier = Modifier
                         .width(110.dp)
@@ -258,18 +254,19 @@ fun ProductEdit(
                     onUpdate
                 )
             }
-            if (productUiState.productDetails.image.size > 0){
-                item {
-                    Image(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
-                        bitmap = Product.toBitmap(productUiState.productDetails.image).asImageBitmap(),
-//                    painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
-                        contentDescription = "Продукт"
-                    )
-                }
-            }
+//            if (productUiState.productDetails.image.size > 0) {
+//                item {
+//                    Image(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .aspectRatio(1f),
+//                        bitmap = Product.toBitmap(productUiState.productDetails.image)
+//                            .asImageBitmap(),
+////                    painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
+//                        contentDescription = "Продукт"
+//                    )
+//                }
+//            }
             item {
                 OutlinedTextField(modifier = Modifier.fillMaxWidth(),
                     value = productUiState.productDetails.name,
@@ -280,7 +277,8 @@ fun ProductEdit(
                 )
             }
             item {
-                OutlinedTextField(modifier = Modifier.fillMaxWidth(),
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
                     value = productUiState.productDetails.price.toString(),
                     onValueChange = { onUpdate(productUiState.productDetails.copy(price = it.toDouble())) },
                     label = {

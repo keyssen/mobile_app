@@ -2,16 +2,10 @@ package com.nodj.hardwareStore.db.database
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.widget.ImageView
-import androidx.compose.ui.platform.LocalContext
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.db.dao.CategoryDao
 import com.nodj.hardwareStore.db.dao.OrderDao
 import com.nodj.hardwareStore.db.dao.OrderWithProductsDao
@@ -25,19 +19,22 @@ import com.nodj.hardwareStore.db.models.User
 import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.db.models.manyToMany.OrderWithProducts
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
-import com.nodj.hardwareStore.ui.MainActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
+import com.nodj.hardwareStore.db.remotekeys.dao.RemoteKeys
+import com.nodj.hardwareStore.db.remotekeys.dao.RemoteKeysDao
 import java.util.Date
 
-@Database(entities = [User::class, Product::class, Category::class, UserWithProducts::class, Order::class, OrderWithProducts::class], version = 1, exportSchema = false)
+@Database(
+    entities = [User::class, Product::class, Category::class, UserWithProducts::class, Order::class, OrderWithProducts::class, RemoteKeys::class],
+    version = 1,
+    exportSchema = false
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     abstract fun productDao(): ProductDao
+
+    abstract fun remoteKeysDao(): RemoteKeysDao
 
     abstract fun categoryDao(): CategoryDao
 
@@ -46,6 +43,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun orderDao(): OrderDao
 
     abstract fun orderWithProductsDao(): OrderWithProductsDao
+
     companion object {
         private const val DB_NAME: String = "pmy-db"
 
@@ -66,7 +64,8 @@ abstract class AppDatabase : RoomDatabase() {
 
                 val width = 100
                 val height = 100
-                val colors = IntArray(width * height) { 0xFF000000.toInt() } // Initialize with black color
+                val colors =
+                    IntArray(width * height) { 0xFF000000.toInt() } // Initialize with black color
                 val offset = 0
                 val stride = width
                 val config = Bitmap.Config.ARGB_8888
@@ -74,18 +73,6 @@ abstract class AppDatabase : RoomDatabase() {
                 val bitmap = Bitmap.createBitmap(colors, offset, stride, width, height, config)
 //                val image = Image()
 //                val a = MainActivity()
-                val product1 = Product(1, "ProductName1", 1000.00, bitmap, 1)
-                val product2 = Product(2, "ProductName2", 2000.00, bitmap, 1)
-                val product3 = Product(3, "ProductName3", 3000.00, bitmap, 2)
-                val product4 = Product(4, "ProductName4", 4000.00, bitmap, 2)
-                val product5 = Product(name = "ProductName4", price = 4000.00, image = bitmap, categoryId = 2)
-                productDao.insert(product1)
-                productDao.insert(product2)
-                productDao.insert(product3)
-                productDao.insert(product4)
-                for (i in 0..10000) {
-                    productDao.insert(product5)
-                }
                 val userWithProductsDao = database.userWithProductsDao()
                 val userWithProducts1 = UserWithProducts(1, 1, 3)
                 val userWithProducts2 = UserWithProducts(1, 2, 2)
@@ -130,14 +117,14 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DB_NAME
                 )
-                    .addCallback(object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            CoroutineScope(Dispatchers.IO).launch {
-                                populateDatabase()
-                            }
-                        }
-                    })
+//                    .addCallback(object : Callback() {
+//                        override fun onCreate(db: SupportSQLiteDatabase) {
+//                            super.onCreate(db)
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                populateDatabase()
+//                            }
+//                        }
+//                    })
                     .build()
                     .also { INSTANCE = it }
             }

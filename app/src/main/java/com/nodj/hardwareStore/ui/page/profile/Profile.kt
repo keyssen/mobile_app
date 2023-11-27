@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.page
+package com.nodj.hardwareStore.ui.page.profile
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
@@ -15,38 +15,44 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.nodj.hardwareStore.db.database.AppDatabase
-import com.nodj.hardwareStore.db.models.User
+import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.nodj.hardwareStore.ui.category.edit.CategoryDetails
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Profile(navController: NavController?) {
-    val context = LocalContext.current
-    var user = remember { mutableStateOf<User?>(null) }
-    var password by remember { mutableStateOf("") }
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            user.value = AppDatabase.getInstance(context).userDao().getByid(1)
-        }
-    }
-    Column(modifier = Modifier
-        .padding(all = 16.dp)
-        .padding(top = 40.dp)) {
+fun Profile(
+    navController: NavController,
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val userUiState = viewModel.userUiState
+    Profile(
+        navController, userUiState,
+        onUpdate = viewModel::updateUiState,
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Profile(
+    navController: NavController,
+    userUiState: UserUiState,
+    onUpdate: (UserDetails) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .padding(all = 16.dp)
+            .padding(top = 40.dp)
+    ) {
         Text(
             text = "Имя пользователя",
             modifier = Modifier.padding(bottom = 12.dp)
@@ -55,8 +61,8 @@ fun Profile(navController: NavController?) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 30.dp),
-            value = user.value?.name ?: "0",
-            onValueChange = { user.value?.name = it },
+            value = userUiState.userDetails.name,
+            onValueChange = { onUpdate(userUiState.userDetails.copy(name = it)) },
             shape = RoundedCornerShape(15.dp),
             placeholder = { Text("Имя") },
         )
@@ -68,8 +74,8 @@ fun Profile(navController: NavController?) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 30.dp),
-            value = password,
-            onValueChange = { password = it },
+            value = userUiState.userDetails.password,
+            onValueChange = { onUpdate(userUiState.userDetails.copy(password = it)) },
             shape = RoundedCornerShape(15.dp),
             placeholder = { Text("пароль") },
             singleLine = true
@@ -87,7 +93,7 @@ fun Profile(navController: NavController?) {
         Text(
             text = "Вход",
             modifier = Modifier.clickable {
-                navController?.navigate("sign-in") {
+                navController.navigate("sign-in") {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }
@@ -99,7 +105,7 @@ fun Profile(navController: NavController?) {
         Text(
             text = "Регистрация",
             modifier = Modifier.clickable {
-                navController?.navigate("sign-up") {
+                navController.navigate("sign-up") {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }
@@ -119,7 +125,6 @@ fun ProfilePreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            Profile(navController = null)
         }
     }
 }

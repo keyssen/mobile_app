@@ -7,13 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.repository.repositoryInterface.CategoryRepository
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class CategoryDropDownViewModel(
     private val categoryRepository: CategoryRepository
 ) : ViewModel() {
-    var categorysListUiState by mutableStateOf(CategorysListUiState())
+    var categoriesListUiState by mutableStateOf(CategorysListUiState())
         private set
 
     var categoryUiState by mutableStateOf(CategoryUiState())
@@ -21,15 +20,13 @@ class CategoryDropDownViewModel(
 
     init {
         viewModelScope.launch {
-            categoryRepository.getAll().collect(){
-                categorysListUiState = CategorysListUiState(it)
-            }
+            categoriesListUiState = CategorysListUiState(categoryRepository.getAll())
         }
     }
 
     fun setCurrentCategory(categoryId: Int) {
         val category: Category? =
-            categorysListUiState.categoryList.firstOrNull { category -> category.id == categoryId }
+            categoriesListUiState.categoryList.firstOrNull { category -> category.id == categoryId }
         category?.let { updateUiState(it) }
     }
 

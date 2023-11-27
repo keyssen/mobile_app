@@ -1,5 +1,6 @@
 package com.nodj.hardwareStore.db.repository.repositoryInterface
 
+import androidx.paging.PagingData
 import androidx.room.Dao
 import com.nodj.hardwareStore.db.models.Category
 import kotlinx.coroutines.flow.Flow
@@ -7,9 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CategoryRepository {
-    fun getAll(): Flow<List<Category>>
+    fun getAllCategories(): Flow<PagingData<Category>>
 
-    fun getByid(id: Int): Flow<Category>
+    suspend fun getAll(): List<Category>
+
+    suspend fun getByid(id: Int): Category
 
     suspend fun insert(category: Category)
 

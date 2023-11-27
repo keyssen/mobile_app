@@ -8,22 +8,34 @@ import com.nodj.hardwareStore.db.repository.repositoryInterface.ProductRepositor
 import kotlinx.coroutines.flow.Flow
 
 class OfflineProductRepository(private val productDao: ProductDao) : ProductRepository {
-    override fun getAll(): Flow<List<Product>> = productDao.getAll()
+    override suspend fun getProduct(id: Int): Product = productDao.getProduct(id)
 
-    override fun getProduct(id: Int): Flow<Product> = productDao.getProduct(id)
-    override fun loadAllProductPaged(): PagingSource<Int, Product> = productDao.loadAllProductPaged()
+    override fun loadAllProductPaged(): PagingSource<Int, Product> =
+        productDao.loadAllProductPaged()
 
     override suspend fun get(id: Int, userId: Int): AdvancedProduct = productDao.get(id, userId)
+    override fun getAllByUserFlow(userId: Int): Flow<List<AdvancedProduct>> {
+        TODO("Not yet implemented")
+    }
 
-    override fun getAllByUserFlow(userId: Int): Flow<List<AdvancedProduct>> = productDao.getAllByUserFlow(userId)
 
-    override suspend fun getAllByUser(userId: Int): List<AdvancedProduct> = productDao.getAllByUser(userId)
+    override suspend fun getAllByUser(userId: Int): List<AdvancedProduct> {
+        TODO("Not yet implemented")
+    }
 
-    override fun getAllByUserProduct(userId: Int): Flow<List<Product>> = productDao.getAllByUserProduct(userId)
 
-    override suspend fun getByCategory(categoryId: Int): List<Product> = productDao.getByCategory(categoryId)
+    override suspend fun getAllByUserProduct(userId: Int): List<Product> {
+        TODO("Not yet implemented")
+    }
 
-    override suspend fun getAllByOrder(orderId: Int): List<AdvancedProduct> = productDao.getAllByOrder(orderId)
+//    override suspend fun getAllByUserProduct(userId: Int): List<Product> =
+//        productDao.getAllByUserProduct(userId)
+
+    override suspend fun getByCategory(categoryId: Int): List<Product> =
+        productDao.getByCategory(categoryId)
+
+    override suspend fun getAllByOrder(orderId: Int): List<AdvancedProduct> =
+        productDao.getAllByOrder(orderId)
 
     override suspend fun insert(product: Product) = productDao.insert(product)
 

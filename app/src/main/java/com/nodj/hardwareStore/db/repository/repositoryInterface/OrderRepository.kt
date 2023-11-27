@@ -3,17 +3,16 @@ package com.nodj.hardwareStore.db.repository.repositoryInterface
 import androidx.room.Dao
 import com.nodj.hardwareStore.db.models.Order
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
-import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface OrderRepository {
 
-    suspend fun  getAll(): List<Order>
+    suspend fun getAll(): List<Order>
 
-    fun getAllByUser(userId: Int): Flow<Map<Order, List<ProductFromOrder>>>
+    suspend fun getAllByUser(userId: Int): Map<Order, List<ProductFromOrder>>
 
-    fun getByOrder(orderId: Int): Flow<List<ProductFromOrder>>
+    suspend fun getByOrder(orderId: Int): List<ProductFromOrder>
 
     suspend fun getByUserid(userId: Int): List<Order>
 

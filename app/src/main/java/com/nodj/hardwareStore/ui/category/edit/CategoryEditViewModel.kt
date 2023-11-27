@@ -8,8 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.repository.repositoryInterface.CategoryRepository
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class CategoryEditViewModel(
@@ -27,8 +25,6 @@ class CategoryEditViewModel(
         viewModelScope.launch {
             if (categoryid > 0) {
                 categoryUiState = categoryRepository.getByid(categoryid)
-                    .filterNotNull()
-                    .first()
                     .toUiState(true)
             }
         }
