@@ -75,6 +75,11 @@
     {
       "userId": 1,
       "id": 17
+    },
+    {
+      "date": "2023-12-12T12:42:38.707+0000",
+      "userId": 1,
+      "id": 18
     }
   ],
   "order_with_products": [
@@ -315,9 +320,30 @@
       "count": 1,
       "currentPrice": 2.32,
       "id": 34
+    },
+    {
+      "orderId": 18,
+      "productId": 4,
+      "count": 1,
+      "currentPrice": 10,
+      "id": 35
+    },
+    {
+      "orderId": 18,
+      "productId": 3,
+      "count": 1,
+      "currentPrice": 2.52,
+      "id": 36
     }
   ],
-  "user_with_products": [],
+  "user_with_products": [
+    {
+      "userId": 1,
+      "productId": 6,
+      "count": 1,
+      "id": 1
+    }
+  ],
   "categories": [
     {
       "id": 1,
