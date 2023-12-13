@@ -2,7 +2,7 @@
   "name": "fake-db",
   "version": "1.0.0",
   "scripts": {
-    "start": "json-server --watch data.json --host 0.0.0.0 -p 8079"
+    "start": "json-server --watch data.json --middlewares ./reportRouter.js --host 0.0.0.0 -p 8079"
   },
   "dependencies": {
   },

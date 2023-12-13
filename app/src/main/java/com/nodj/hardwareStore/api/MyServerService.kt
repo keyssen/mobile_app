@@ -190,7 +190,7 @@ interface MyServerService {
     ): List<OrderRemote>
 
     companion object {
-        private const val BASE_URL = "http://192.168.109.32:8079/"
+        private const val BASE_URL = "http://192.168.215.189:8079/"
 
         @Volatile
         private var INSTANCE: MyServerService? = null

@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
@@ -36,13 +37,13 @@ class OrderViewModel(
             if (orderId > 0) {
                 orderUiState = OrderUiState(orderRepository.getByOrder(orderId))
                 productListCartUiState =
-                    ProductListCartUiState(productRepository.getAllByUserProduct(1))
+                    ProductListCartUiState(productRepository.getAllByUserProduct(LiveStore.getUserId()))
             }
         }
     }
 
     suspend fun addToCartProduct(productid: Int) {
-        userWithProductsRepository.insert(UserWithProducts(1, productid, 1))
+        userWithProductsRepository.insert(UserWithProducts(LiveStore.getUserId(), productid, 1))
     }
 }
 

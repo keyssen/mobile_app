@@ -364,6 +364,51 @@
       "name": "name1",
       "role": "USER",
       "password": "dadwawdawd"
+    },
+    {
+      "name": "admin",
+      "password": "admin",
+      "id": 2
+    },
+    {
+      "name": "admin",
+      "password": "admin",
+      "id": 3
+    },
+    {
+      "name": "admin",
+      "password": "admin",
+      "id": 4
+    },
+    {
+      "name": "a",
+      "password": "a",
+      "id": 5
+    },
+    {
+      "name": "a",
+      "password": "a",
+      "id": 6
+    },
+    {
+      "name": "a",
+      "password": "a",
+      "id": 7
+    },
+    {
+      "name": "a",
+      "password": "a",
+      "id": 8
+    },
+    {
+      "name": "a",
+      "password": "a",
+      "id": 9
+    },
+    {
+      "name": "admin",
+      "password": "admin",
+      "id": 10
     }
   ],
   "products": [

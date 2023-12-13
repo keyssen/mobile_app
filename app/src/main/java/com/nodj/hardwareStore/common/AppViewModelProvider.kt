@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nodj.hardwareStore.ui.ShopApplication
+import com.nodj.hardwareStore.ui.authenticator.AuthenticatorViewModel
 import com.nodj.hardwareStore.ui.category.CategorizedProductsViewModel
 import com.nodj.hardwareStore.ui.category.CategoryListViewModel
 import com.nodj.hardwareStore.ui.category.edit.CategoryEditViewModel
@@ -82,6 +83,11 @@ object AppViewModelProvider {
                 shopApplication().container.restProductRepository,
                 shopApplication().container.restUserWithProductsRepository,
                 this.createSavedStateHandle()
+            )
+        }
+        initializer {
+            AuthenticatorViewModel(
+                shopApplication().container.restUserRepository,
             )
         }
     }

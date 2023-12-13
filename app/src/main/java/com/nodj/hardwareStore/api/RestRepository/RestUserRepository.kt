@@ -44,10 +44,15 @@ class RestUserRepository(
         ).flow
     }
 
+    override suspend fun getByName(name: String): User? = dbUserRepository.getByName(name)
+
+    override suspend fun getByNamePassword(name: String, password: String): User? =
+        dbUserRepository.getByNamePassword(name, password)
+
     override suspend fun getByid(id: Int): User = service.getUser(id).toUser()
 
     override suspend fun insert(user: User) {
-        service.createUser(user.toUserRemote()).toUser()
+        dbUserRepository.insert(service.createUser(user.toUserRemote()).toUser())
     }
 
     override suspend fun update(user: User) {

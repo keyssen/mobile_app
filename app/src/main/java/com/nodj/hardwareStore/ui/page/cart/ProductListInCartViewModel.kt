@@ -3,6 +3,7 @@ package com.nodj.hardwareStore.ui.page.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.common.AppContainer
 import com.nodj.hardwareStore.db.models.Order
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
@@ -30,7 +31,7 @@ class ProductListInCartViewModel(
 //    val productListCartUiState: Flow<PagingData<AdvancedProduct>> = productRepository.getByUser(1)
 
     val productListCartUiState: StateFlow<ProductListCartUiState> =
-        productRepository.getAllByUserFlow(1).map {
+        productRepository.getAllByUserFlow(LiveStore.getUserId()).map {
             ProductListCartUiState(it)
         }.stateIn(
             scope = viewModelScope,

@@ -10,7 +10,11 @@ import kotlinx.coroutines.flow.Flow
 interface UserRepository {
     fun getAll(): Flow<PagingData<User>>
 
-    suspend fun getByid(id: Int): User
+    suspend fun getByName(name: String): User?
+
+    suspend fun getByNamePassword(name: String, password: String): User?
+
+    suspend fun getByid(id: Int): User?
 
     suspend fun insert(user: User)
 

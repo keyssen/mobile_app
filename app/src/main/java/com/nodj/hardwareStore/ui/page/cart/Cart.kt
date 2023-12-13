@@ -42,6 +42,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.ui.MyApplicationTheme
@@ -93,7 +94,7 @@ fun Cart(
         },
         onClickBuy = { id: Int ->
             coroutineScope.launch {
-                viewModel.createOrder(1)
+                viewModel.createOrder(LiveStore.getUserId())
             }
         }
     )

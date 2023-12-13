@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.db.models.Order
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.db.repository.repositoryInterface.OrderRepository
@@ -24,7 +25,7 @@ class OrdersViewModel(
 
     fun update() {
         viewModelScope.launch {
-            orderListUiState = OrderListUiState(orderRepository.getAllByUser(1))
+            orderListUiState = OrderListUiState(orderRepository.getAllByUser(LiveStore.getUserId()))
         }
     }
 }

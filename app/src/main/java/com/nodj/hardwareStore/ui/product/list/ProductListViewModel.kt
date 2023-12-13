@@ -4,6 +4,7 @@ package com.nodj.hardwareStore.ui.product.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.common.AppContainer
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
@@ -23,7 +24,7 @@ class ProductListViewModel(
             private set*/
 
     val productListCartUiState: StateFlow<ProductListCartUiState> =
-        productRepository.getAllByUserProductFlow(1).map {
+        productRepository.getAllByUserProductFlow(LiveStore.getUserId()).map {
             ProductListCartUiState(it)
         }.stateIn(
             scope = viewModelScope,
@@ -49,7 +50,7 @@ class ProductListViewModel(
     }
 
     suspend fun addToCartProduct(productid: Int) {
-        val user = UserWithProducts(1, productid, 1)
+        val user = UserWithProducts(LiveStore.getUserId(), productid, 1)
         userWithProductsRepository.insert(user)
         /* update()*/
     }

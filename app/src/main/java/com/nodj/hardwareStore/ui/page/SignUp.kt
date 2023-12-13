@@ -19,32 +19,74 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.navigation.Screen
+import com.nodj.hardwareStore.ui.navigation.changeLocation
+import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
+import com.nodj.hardwareStore.ui.page.profile.UserDetails
+import com.nodj.hardwareStore.ui.page.profile.UserUiState
+import com.nodj.hardwareStore.ui.page.profile.UserViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUp(navController: NavController?) {
-    Column(modifier = Modifier
-        .padding(all = 16.dp)
-        .padding(top = 40.dp)) {
+fun SignUp(
+    navController: NavController,
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val userUiState = viewModel.userUiState
+    fun handleSignuPButtonClick() {
+        scope.launch {
+            viewModel.signUp(context)
+//            if () {
+//                changeLocation(navController, Screen.Profile.route)
+//            }
+        }
+    }
+    SignUp(
+        navController, userUiState,
+        onUpdate = viewModel::updateUiState,
+        onSignUpClick = {
+            handleSignuPButtonClick()
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SignUp(
+    navController: NavController,
+    userUiState: UserUiState,
+    onUpdate: (UserDetails) -> Unit,
+    onSignUpClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .padding(all = 16.dp)
+            .padding(top = 40.dp)
+    ) {
         Text(
             text = "Введите логин",
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        var login by remember { mutableStateOf("") }
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 30.dp),
-            value = login,
-            onValueChange = { login = it },
+            value = userUiState.userDetails.name,
+            onValueChange = { onUpdate(userUiState.userDetails.copy(name = it)) },
             shape = RoundedCornerShape(15.dp),
             placeholder = { Text("Логин") },
         )
@@ -52,13 +94,12 @@ fun SignUp(navController: NavController?) {
             text = "Введите пароль",
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        var password by remember { mutableStateOf("") }
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 20.dp),
-            value = password,
-            onValueChange = { password = it },
+            value = userUiState.userDetails.password,
+            onValueChange = { onUpdate(userUiState.userDetails.copy(password = it)) },
             shape = RoundedCornerShape(15.dp),
             placeholder = { Text("пароль") },
             singleLine = true
@@ -70,7 +111,7 @@ fun SignUp(navController: NavController?) {
                 .width(100.dp)
                 .height(40.dp)
                 .align(Alignment.CenterHorizontally),
-            onClick = {}) {
+            onClick = { onSignUpClick() }) {
             Text("Зарегистрироваться")
         }
         Row {
@@ -78,28 +119,22 @@ fun SignUp(navController: NavController?) {
             Text(
                 text = "Вход",
                 modifier = Modifier.clickable {
-                    navController?.navigate("sign-in") {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    changeLocationDeprecated(navController, Screen.SignIn.route)
                 }
             )
         }
     }
 }
 
-@Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun SignUpPreview() {
-    MyApplicationTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.background
-        ) {
-            SignUp(navController = null)
-        }
-    }
-}
+//@Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+//@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+//@Composable
+//fun SignUpPreview() {
+//    MyApplicationTheme {
+//        Surface(
+//            color = MaterialTheme.colorScheme.background
+//        ) {
+//            SignUp(navController = null)
+//        }
+//    }
+//}

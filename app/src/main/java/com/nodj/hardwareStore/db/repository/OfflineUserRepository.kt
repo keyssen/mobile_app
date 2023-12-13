@@ -19,9 +19,14 @@ class OfflineUserRepository(private val userDao: UserDao) : UserRepository {
         pagingSourceFactory = userDao::getAll
     ).flow
 
+    override suspend fun getByName(name: String): User? = userDao.getByName(name)
+
+    override suspend fun getByNamePassword(name: String, password: String): User? =
+        userDao.getByNamePassword(name, password)
+
     fun getAllUsersPagingSource(): PagingSource<Int, User> = userDao.getAll()
 
-    override suspend fun getByid(id: Int): User = userDao.getByid(id)
+    override suspend fun getByid(id: Int): User? = userDao.getByid(id)
 
     override suspend fun insert(user: User) = userDao.insert(user)
 

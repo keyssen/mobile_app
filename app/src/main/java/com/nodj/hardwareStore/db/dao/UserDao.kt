@@ -14,8 +14,14 @@ interface UserDao {
     @Query("select * from users order by name collate nocase asc")
     fun getAll(): PagingSource<Int, User>
 
+    @Query("SELECT * FROM users WHERE name = :name AND password = :password LIMIT 1")
+    suspend fun getByNamePassword(name: String, password: String): User?
+
+    @Query("select * from users where name = :name")
+    suspend fun getByName(name: String): User?
+
     @Query("select * from users where user_id = :id")
-    suspend fun getByid(id: Int): User
+    suspend fun getByid(id: Int): User?
 
     @Insert
     suspend fun insert(vararg user: User)

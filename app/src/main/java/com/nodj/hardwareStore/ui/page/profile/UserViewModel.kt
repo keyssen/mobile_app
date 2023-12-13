@@ -1,10 +1,13 @@
 package com.nodj.hardwareStore.ui.page.profile
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nodj.hardwareStore.LiveStore
+import com.nodj.hardwareStore.db.datastore.PreferencesStore
 import com.nodj.hardwareStore.db.models.User
 import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.db.repository.repositoryInterface.UserRepository
@@ -21,8 +24,10 @@ class UserViewModel(
 
     init {
         viewModelScope.launch {
-            userUiState = userRepository.getByid(1)
-                .toUiState(true)
+            if (LiveStore.getUserId() != 0) {
+                userUiState = userRepository.getByid(LiveStore.getUserId())
+                    ?.toUiState(true) ?: UserUiState()
+            }
         }
     }
 
@@ -33,10 +38,25 @@ class UserViewModel(
         )
     }
 
-    suspend fun saveUser() {
+    suspend fun signUp(context: Context) {
         if (validateInput()) {
             userRepository.insert(userUiState.userDetails.toUser())
         }
+    }
+
+    suspend fun SignIn(context: Context): Boolean {
+        if (validateInput()) {
+            val user = userRepository.getByNamePassword(
+                userUiState.userDetails.name,
+                userUiState.userDetails.password
+            )
+            if (user != null) {
+                val store = PreferencesStore(context)
+                store.setUsername(user.name)
+                return true
+            }
+        }
+        return false
     }
 
     private fun validateInput(uiState: UserDetails = userUiState.userDetails): Boolean {

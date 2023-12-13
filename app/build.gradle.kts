@@ -73,6 +73,9 @@ dependencies {
     // Coil
     implementation("io.coil-kt:coil:2.5.0")
 
+    // DataStore | +
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
     // Room
     val room_version = "2.5.2"
     implementation("androidx.room:room-runtime:$room_version")
