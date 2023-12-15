@@ -7,7 +7,9 @@ import com.nodj.hardwareStore.db.models.manyToMany.OrderWithProducts
 interface OrderWithProductsRepository {
     suspend fun insert(orderWithProducts: OrderWithProducts)
 
-    suspend fun update(orderWithProducts: OrderWithProducts)
+    suspend fun insertMany(ordersWithProducts: List<OrderWithProducts>)
 
     suspend fun delete(orderWithProducts: OrderWithProducts)
+
+    suspend fun deleteAll()
 }

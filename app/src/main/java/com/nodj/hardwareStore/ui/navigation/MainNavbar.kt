@@ -34,21 +34,21 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.db.models.UserRole
+import com.nodj.hardwareStore.db.theme.order.OrderContent
 import com.nodj.hardwareStore.db.theme.order.OrderList
-import com.nodj.hardwareStore.db.theme.order.OrderView
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.UI.Search
-import com.nodj.hardwareStore.ui.category.CategoryList
-import com.nodj.hardwareStore.ui.category.CategoryView
-import com.nodj.hardwareStore.ui.category.edit.CategoryEdit
 import com.nodj.hardwareStore.ui.page.cart.Cart
+import com.nodj.hardwareStore.ui.page.category.Category
+import com.nodj.hardwareStore.ui.page.category.edit.CategoryEdit
+import com.nodj.hardwareStore.ui.page.category.list.CategoryList
+import com.nodj.hardwareStore.ui.page.product.Product
+import com.nodj.hardwareStore.ui.page.product.list.ProductList
 import com.nodj.hardwareStore.ui.page.profile.Profile
 import com.nodj.hardwareStore.ui.page.report.Report
 import com.nodj.hardwareStore.ui.page.signIn.SignIn
 import com.nodj.hardwareStore.ui.page.signUp.SignUp
 import com.nodj.hardwareStore.ui.product.ProductEdit
-import com.nodj.hardwareStore.ui.product.ProductList
-import com.nodj.hardwareStore.ui.product.ProductView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,7 +126,7 @@ fun Navbar(
                     },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
-                        if (screen.route == Screen.Profile.route && LiveStore.getUserId() == 0) {
+                        if (screen.route == Screen.Profile.route && user.value == null) {
                             navController.navigate(Screen.SignIn.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
@@ -158,7 +158,7 @@ fun Navhost(
 ) {
     NavHost(
         navController,
-        startDestination = Screen.Catalog.route,
+        startDestination = Screen.Categories.route,
         modifier.padding(innerPadding)
     ) {
         composable(Screen.ProductList.route) { ProductList(navController) }
@@ -169,10 +169,10 @@ fun Navhost(
             ProductEdit(navController)
         }
         composable(
-            Screen.OrderView.route,
+            Screen.Order.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            OrderView(navController)
+            OrderContent(navController)
         }
         composable(
             Screen.CategoryEdit.route,
@@ -181,18 +181,18 @@ fun Navhost(
             CategoryEdit(navController)
         }
         composable(
-            Screen.CategoryView.route,
+            Screen.Category.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            CategoryView(navController)
+            Category()
         }
         composable(
-            Screen.ProductView.route,
+            Screen.Product.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            ProductView(navController)
+            Product(navController)
         }
-        composable(Screen.Catalog.route) { CategoryList(navController) }
+        composable(Screen.Categories.route) { CategoryList(navController) }
         composable(Screen.Cart.route) { Cart(navController) }
         composable(Screen.Orders.route) { OrderList(navController) }
         composable(Screen.SignIn.route) { SignIn(navController) }

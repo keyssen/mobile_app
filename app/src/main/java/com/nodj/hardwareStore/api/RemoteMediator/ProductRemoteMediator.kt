@@ -8,21 +8,21 @@ import androidx.room.withTransaction
 import com.nodj.hardwareStore.api.MyServerService
 import com.nodj.hardwareStore.api.model.toProduct
 import com.nodj.hardwareStore.db.database.AppDatabase
-import com.nodj.hardwareStore.db.models.Product
+import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.db.remotekeys.dao.OfflineRemoteKeyRepository
 import com.nodj.hardwareStore.db.remotekeys.dao.RemoteKeyType
 import com.nodj.hardwareStore.db.remotekeys.dao.RemoteKeys
-import com.nodj.hardwareStore.db.repository.IncompleteOfflineProductRepository
+import com.nodj.hardwareStore.db.repository.OfflineProductRepository
 import retrofit2.HttpException
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
 class ProductRemoteMediator(
     private val service: MyServerService,
-    private val dbProductRepository: IncompleteOfflineProductRepository,
+    private val dbProductRepository: OfflineProductRepository,
     private val dbRemoteKeyRepository: OfflineRemoteKeyRepository,
     private val database: AppDatabase
-) : RemoteMediator<Int, Product>() {
+) : RemoteMediator<Int, AdvancedProduct>() {
 
     override suspend fun initialize(): InitializeAction {
         return InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -30,7 +30,7 @@ class ProductRemoteMediator(
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Product>
+        state: PagingState<Int, AdvancedProduct>
     ): MediatorResult {
         val page = when (loadType) {
             LoadType.REFRESH -> {
@@ -81,25 +81,25 @@ class ProductRemoteMediator(
         }
     }
 
-    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, Product>): RemoteKeys? {
+    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, AdvancedProduct>): RemoteKeys? {
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
             ?.let { product ->
-                dbRemoteKeyRepository.getAllRemoteKeys(product.id, RemoteKeyType.PRODUCT)
+                dbRemoteKeyRepository.getAllRemoteKeys(product.product.id, RemoteKeyType.PRODUCT)
             }
     }
 
-    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, Product>): RemoteKeys? {
+    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, AdvancedProduct>): RemoteKeys? {
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
             ?.let { product ->
-                dbRemoteKeyRepository.getAllRemoteKeys(product.id, RemoteKeyType.PRODUCT)
+                dbRemoteKeyRepository.getAllRemoteKeys(product.product.id, RemoteKeyType.PRODUCT)
             }
     }
 
     private suspend fun getRemoteKeyClosestToCurrentPosition(
-        state: PagingState<Int, Product>
+        state: PagingState<Int, AdvancedProduct>
     ): RemoteKeys? {
         return state.anchorPosition?.let { position ->
-            state.closestItemToPosition(position)?.id?.let { productUid ->
+            state.closestItemToPosition(position)?.product?.id?.let { productUid ->
                 dbRemoteKeyRepository.getAllRemoteKeys(productUid, RemoteKeyType.PRODUCT)
             }
         }

@@ -10,11 +10,12 @@ class RestOrderWithProductsRepository(
     private val service: MyServerService,
     private val dbOrderWithProductsRepository: OfflineOrderWithProductsRepository,
 ) : OrderWithProductsRepository {
+
     override suspend fun insert(orderWithProducts: OrderWithProducts) {
-        val respone = service.createOrderWithProduct(orderWithProducts.toOrderRemoteForInsert())
+        service.createOrderWithProduct(orderWithProducts.toOrderRemoteForInsert())
     }
 
-    override suspend fun update(orderWithProducts: OrderWithProducts) {
+    override suspend fun insertMany(ordersWithProducts: List<OrderWithProducts>) {
         TODO("Not yet implemented")
     }
 
@@ -22,4 +23,7 @@ class RestOrderWithProductsRepository(
         TODO("Not yet implemented")
     }
 
+    override suspend fun deleteAll() {
+        TODO("Not yet implemented")
+    }
 }

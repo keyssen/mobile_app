@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -32,10 +33,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.common.AppViewModelProvider
+import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
-import com.nodj.hardwareStore.ui.product.productCarts.ProductForCart
+import com.nodj.hardwareStore.ui.page.product.productCarts.ProductForCart
 import kotlinx.coroutines.launch
 
 
@@ -68,16 +70,13 @@ fun Cart(
             }
         },
         onClickViewProduct = { id: Int ->
-            val route = Screen.ProductView.route.replace("{id}", id.toString())
+            val route = Screen.Product.route.replace("{id}", id.toString())
             navController.navigate(route)
         },
         onClickBuy = {
             coroutineScope.launch {
                 viewModel.createOrder(LiveStore.getUserId())
             }
-        },
-        update = {
-            viewModel.update()
         }
     )
 }
@@ -85,7 +84,6 @@ fun Cart(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun Cart(
-    update: () -> Unit,
     productListCart: List<AdvancedProduct>,
     onClickPlus: (id: Int) -> Unit,
     onClickMinus: (id: Int) -> Unit,
@@ -97,6 +95,7 @@ fun Cart(
         modifier = Modifier
             .fillMaxSize()
     ) {
+
         LazyColumn(modifier = Modifier.padding(all = 10.dp)) {
             items(
                 count = productListCart.size,

@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.category.edit
+package com.nodj.hardwareStore.ui.page.category.edit
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues

@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,26 +33,31 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
-import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
-import com.nodj.hardwareStore.ui.page.orders.order.OrderViewModel
+import com.nodj.hardwareStore.ui.page.orders.orderContent.OrderViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderView(
+fun OrderContent(
     navController: NavController,
     viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    OrderView(
-        productList = viewModel.orderUiState.productList,
-        productListCart = viewModel.productListCartUiState.productListCart,
+    LaunchedEffect(Unit) {
+        viewModel.update()
+    }
+    val productList = viewModel.orderUiState.productList
+    val productListCart = viewModel.productListCart.productListCart
+    OrderContent(
+        productList = productList,
+        productListCart = productListCart,
         onClickViewProduct = { id: Int ->
-            val route = Screen.ProductView.route.replace("{id}", id.toString())
+            val route = Screen.Product.route.replace("{id}", id.toString())
             navController.navigate(route)
         },
         onClickBuyProduct = { id: Int ->
@@ -69,7 +75,7 @@ fun OrderView(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderView(
+fun OrderContent(
     productList: List<ProductFromOrder>,
     productListCart: List<Product>,
     onClickViewProduct: (id: Int) -> Unit,
@@ -88,8 +94,10 @@ fun OrderView(
             items(productList.size) { index ->
                 val productFromOrder = productList[index]
                 var inCart = false
-                if (productListCart.contains(productFromOrder.product)){
-                    inCart = true
+                productListCart.forEach {
+                    if (it.id == productFromOrder.product.id) {
+                        inCart = true
+                    }
                 }
                 Row(
                     modifier = Modifier
@@ -112,12 +120,13 @@ fun OrderView(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                    ){
-                        Row(modifier = Modifier
-                            .fillMaxWidth(),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
-                        ){
-                            if(inCart){
+                        ) {
+                            if (inCart) {
                                 Button(
                                     modifier = Modifier
                                         .padding(all = 10.dp)
@@ -126,7 +135,7 @@ fun OrderView(
                                     onClick = { onClickViewCart() }) {
                                     Text(stringResource(R.string.go_to_cart))
                                 }
-                            } else{
+                            } else {
                                 Button(
                                     modifier = Modifier
                                         .padding(all = 10.dp)
@@ -136,21 +145,28 @@ fun OrderView(
                                     Text(stringResource(R.string.product_buy))
                                 }
                             }
-                            Text(text = productFromOrder.count.toString(),
+                            Text(
+                                text = productFromOrder.count.toString(),
                                 modifier = Modifier
                                     .padding(top = 20.dp)
-                                    .size(20.dp))
+                                    .size(20.dp)
+                            )
                         }
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 10.dp)
-                        ){
-                            Text(modifier = Modifier
-                                .fillMaxWidth(),
-                                text = "${productFromOrder.product.name}")
-                            Text(modifier = Modifier
-                                .fillMaxWidth(),
-                                text = "${productFromOrder.product.price}")
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp)
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                text = "${productFromOrder.product.name}"
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                text = "${productFromOrder.product.price}"
+                            )
                         }
 
                     }
@@ -167,11 +183,13 @@ fun OrderView(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                    ){
-                        Text(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp, start = 10.dp),
-                            text = "Цена: ${productList.sumOf { it.count * it.currentPrice }}")
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, start = 10.dp),
+                            text = "Цена: ${productList.sumOf { it.count * it.currentPrice }}"
+                        )
                     }
                 }
             }

@@ -24,33 +24,15 @@ class RestCategoryRepository(
     private val database: AppDatabase
 ) : CategoryRepository {
     override suspend fun getAll(): List<Category> {
-        Log.d(RestCategoryRepository::class.simpleName, "Get categories")
-
-        val existCategories = dbCategoryRepository.getAll().associateBy { it.id }.toMutableMap()
-
+        Log.d(RestCategoryRepository::class.simpleName, "getAll")
+        dbCategoryRepository.deleteAll()
         var serviceCategories = service.getAllСategories().map { it.toCategory() }
-        serviceCategories
-            .forEach { category ->
-                val existCategory = existCategories[category.id]
-                if (existCategory == null) {
-                    dbCategoryRepository.insert(category)
-                } else if (existCategory != category) {
-                    dbCategoryRepository.update(category)
-                }
-            }
-        val mapServiceCategories = serviceCategories.associateBy { it.id }.toMutableMap()
-        val updatedCategories = dbCategoryRepository.getAll()
-        updatedCategories.forEach {
-            val existCategory = mapServiceCategories[it.id]
-            if (existCategory == null) {
-                dbCategoryRepository.insert(it)
-            }
-        }
-        return updatedCategories
+        dbCategoryRepository.insertCategories(serviceCategories)
+        return serviceCategories
     }
 
     override fun getAllCategories(): Flow<PagingData<Category>> {
-        Log.d(RestCategoryRepository::class.simpleName, "Get categorys")
+        Log.d(RestCategoryRepository::class.simpleName, "getAllCategories PagingData")
 
         val pagingSourceFactory = { dbCategoryRepository.getAllCategoriesPagingSource() }
 

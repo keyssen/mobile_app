@@ -53,13 +53,11 @@ fun OrderList(
         viewModel.update()
     }
     val orderListUiState = viewModel.orderListUiState
-//    val orderListUiState = viewModel.orderListUiState.collectAsLazyPagingItems()
     OrderList(
         update = { viewModel.update() },
         orderList = orderListUiState.orderList.toList(),
-//        orderList = orderListUiState,
         onClickViewOrder = { id: Int ->
-            val route = Screen.OrderView.route.replace("{id}", id.toString())
+            val route = Screen.Order.route.replace("{id}", id.toString())
             navController.navigate(route)
         },
     )

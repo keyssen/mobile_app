@@ -4,22 +4,11 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import java.io.ByteArrayOutputStream
 
 @Entity(
     tableName = "products",
-    foreignKeys = [
-        ForeignKey(
-            entity = Category::class,
-            parentColumns = ["category_id"],
-            childColumns = ["category_id"],
-            onDelete = CASCADE,
-            onUpdate = ForeignKey.RESTRICT
-        )
-    ]
 )
 data class Product(
     @ColumnInfo(name = "product_id")

@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.category
+package com.nodj.hardwareStore.ui.page.category.list
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +39,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
+import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
 import kotlinx.coroutines.launch
@@ -52,20 +55,24 @@ fun CategoryList(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val categoryListUiState = viewModel.categoryListUiState.collectAsLazyPagingItems()
+    val user = LiveStore.user.observeAsState()
     Scaffold(
         topBar = {},
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    val route = Screen.CategoryEdit.route.replace("{id}", 0.toString())
-                    navController.navigate(route)
-                },
-            ) {
-                Icon(Icons.Filled.Add, "Добавить")
+            if (user.value?.role == UserRole.ADMIN) {
+                FloatingActionButton(
+                    onClick = {
+                        val route = Screen.CategoryEdit.route.replace("{id}", 0.toString())
+                        navController.navigate(route)
+                    },
+                ) {
+                    Icon(Icons.Filled.Add, "Добавить")
+                }
             }
         }
     ) { innerPadding ->
         CategoryList(
+            role = user.value?.role,
             modifier = Modifier.padding(innerPadding),
             categoryList = categoryListUiState,
             onClickDelete = { id: Int ->
@@ -78,7 +85,7 @@ fun CategoryList(
                 navController.navigate(route)
             },
             onClickCategoryView = { id: Int ->
-                val route = Screen.CategoryView.route.replace("{id}", id.toString())
+                val route = Screen.Category.route.replace("{id}", id.toString())
                 navController.navigate(route)
             }
         )
@@ -88,6 +95,7 @@ fun CategoryList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryList(
+    role: UserRole?,
     modifier: Modifier,
     categoryList: LazyPagingItems<Category>,
     onClickDelete: (id: Int) -> Unit,
@@ -127,16 +135,19 @@ fun CategoryList(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text("${category.name}")
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                IconButton(onClick = { onClickDelete(category.id) }) {
-                                    Icon(Icons.Filled.Delete, contentDescription = "Удалить")
-                                }
-                                IconButton(onClick = { onClickEdit(category.id) }) {
-                                    Icon(Icons.Filled.Edit, contentDescription = "Изменить")
+                            if (role == UserRole.ADMIN) {
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    IconButton(onClick = { onClickDelete(category.id) }) {
+                                        Icon(Icons.Filled.Delete, contentDescription = "Удалить")
+                                    }
+                                    IconButton(onClick = { onClickEdit(category.id) }) {
+                                        Icon(Icons.Filled.Edit, contentDescription = "Изменить")
+                                    }
                                 }
                             }
+
                         }
                     }
                 }

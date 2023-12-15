@@ -32,9 +32,6 @@ interface OrderDao {
     )
     suspend fun getByOrder(orderId: Int): List<ProductFromOrder>
 
-    @Query("select * from orders where user_id = :userId")
-    suspend fun getByUserid(userId: Int): List<Order>
-
     @Insert
     suspend fun insert(order: Order): Long
 

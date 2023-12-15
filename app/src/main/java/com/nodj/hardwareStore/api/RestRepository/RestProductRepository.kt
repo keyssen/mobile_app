@@ -6,7 +6,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.nodj.hardwareStore.api.MyServerService
-import com.nodj.hardwareStore.api.RemoteMediator.AdvancedProductRemoteMediator
 import com.nodj.hardwareStore.api.RemoteMediator.ProductRemoteMediator
 import com.nodj.hardwareStore.api.model.helperModel.toAdvancedProduct
 import com.nodj.hardwareStore.api.model.toProduct
@@ -15,21 +14,22 @@ import com.nodj.hardwareStore.common.AppContainer
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
+import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
 import com.nodj.hardwareStore.db.remotekeys.dao.OfflineRemoteKeyRepository
-import com.nodj.hardwareStore.db.repository.IncompleteOfflineProductRepository
+import com.nodj.hardwareStore.db.repository.OfflineProductRepository
 import com.nodj.hardwareStore.db.repository.OfflineUserWithProductsRepository
-import com.nodj.hardwareStore.db.repository.repositoryInterface.IncompleteProductRepository
+import com.nodj.hardwareStore.db.repository.repositoryInterface.ProductRepository
 import kotlinx.coroutines.flow.Flow
 
 class RestProductRepository(
     private val service: MyServerService,
-    private val dbProductRepository: IncompleteOfflineProductRepository,
+    private val dbProductRepository: OfflineProductRepository,
     private val dbUserWithProductsRepository: OfflineUserWithProductsRepository,
     private val dbRemoteKeyRepository: OfflineRemoteKeyRepository,
     private val database: AppDatabase
-) : IncompleteProductRepository {
+) : ProductRepository {
 
-    override fun getAll(name: String): Flow<PagingData<Product>> {
+    override fun getAll(name: String): Flow<PagingData<AdvancedProduct>> {
         @OptIn(ExperimentalPagingApi::class)
         return Pager(
             config = PagingConfig(
@@ -52,50 +52,32 @@ class RestProductRepository(
     }
 
     override suspend fun getProduct(id: Int): Product = service.getProduct(id).toProduct()
-    override suspend fun getByCategory(categoryId: Int): List<Product> =
-        service.getByCategoryProducts(categoryId).map { it.toProduct() }
 
     override suspend fun getAllByUserProduct(userId: Int): List<Product> {
-        val listProduct = service.getByUserUserWithProducts(userId)
+        return service.getByUserUserWithProducts(userId)
             .map { service.getProduct(it.productId).toProduct() }
-        return listProduct
-    }
-
-    override fun getAllByUserProductFlow(userId: Int): Flow<List<Product>> {
-        return dbProductRepository.getAllByUserProductFlow(userId)
     }
 
 
-    override fun getByUser(userId: Int): Flow<PagingData<AdvancedProduct>> {
-        Log.d(RestProductRepository::class.simpleName, "Get getByUser")
-
-        val pagingSourceFactory = { dbProductRepository.getAllProductsByUserPagingSource(userId) }
-
-        @OptIn(ExperimentalPagingApi::class)
-        return Pager(
-            config = PagingConfig(
-                pageSize = AppContainer.LIMIT,
-                enablePlaceholders = false
-            ),
-            remoteMediator = AdvancedProductRemoteMediator(
-                service,
-                dbProductRepository,
-                dbUserWithProductsRepository,
-                dbRemoteKeyRepository,
-                database,
-                userId
-            ),
-            pagingSourceFactory = pagingSourceFactory
-        ).flow
+    override suspend fun getAllByUser(userId: Int): List<AdvancedProduct> {
+        dbUserWithProductsRepository.deleteAll()
+        val listAdvancedProduct: List<AdvancedProduct> =
+            service.getAllByUserAdvancedProducts(userId, "product")
+                .map { it.toAdvancedProduct() }
+        Log.d("size", "${listAdvancedProduct.size} ")
+        listAdvancedProduct.forEach {
+            Log.d("getAllByUser", "${it.product.id} ${userId} ")
+            dbUserWithProductsRepository.insert(
+                UserWithProducts(
+                    userId = userId,
+                    productId = it.product.id,
+                    count = it.count
+                )
+            )
+        }
+        return listAdvancedProduct
     }
 
-    override fun getAllByUserFlow(userId: Int): Flow<List<AdvancedProduct>> {
-        return dbProductRepository.getAllByUserFlow(userId)
-    }
-
-
-    override suspend fun getAllByUser(userId: Int): List<AdvancedProduct> =
-        service.getAllByUserAdvancedProducts(userId, "product").map { it.toAdvancedProduct() }
 
     override suspend fun insert(product: Product) {
         service.createProduct(product.toProductRemote()).toProduct()

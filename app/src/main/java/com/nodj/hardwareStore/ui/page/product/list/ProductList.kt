@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.product
+package com.nodj.hardwareStore.ui.page.product.list
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
@@ -63,10 +63,11 @@ import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
+import com.nodj.hardwareStore.db.models.UserRole
+import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
-import com.nodj.hardwareStore.ui.product.list.ProductListViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -78,10 +79,9 @@ fun ProductList(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val productListUiState = viewModel.productListUiState.productList.collectAsLazyPagingItems()
-    val productListCartUiState = viewModel.productListCartUiState
     val searchPattern = LiveStore.searchRequest.observeAsState("")
+    val user = LiveStore.user.observeAsState()
     LaunchedEffect(Unit) {
-        viewModel.update()
         viewModel.refresh()
     }
     LaunchedEffect(searchPattern.value) {
@@ -90,28 +90,29 @@ fun ProductList(
     Scaffold(
         topBar = {},
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    val route = Screen.ProductEdit.route.replace("{id}", 0.toString())
-                    navController.navigate(route)
-                },
-            ) {
-                Icon(Icons.Filled.Add, "Добавить")
-            }
+            if (user.value?.role == UserRole.ADMIN)
+                FloatingActionButton(
+                    onClick = {
+                        val route = Screen.ProductEdit.route.replace("{id}", 0.toString())
+                        navController.navigate(route)
+                    },
+                ) {
+                    Icon(Icons.Filled.Add, "Добавить")
+                }
         }
     ) { innerPadding ->
         ProductList(
+            role = user.value?.role,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
             productList = productListUiState,
-            productCartList = productListCartUiState.productListCart,
             onClick = { id: Int ->
                 val route = Screen.ProductEdit.route.replace("{id}", id.toString())
                 navController.navigate(route)
             },
             onClickViewProduct = { id: Int ->
-                val route = Screen.ProductView.route.replace("{id}", id.toString())
+                val route = Screen.Product.route.replace("{id}", id.toString())
                 navController.navigate(route)
             },
             onClickViewCart = {
@@ -136,9 +137,9 @@ fun ProductList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDelete(
+    role: UserRole?,
     dismissState: DismissState,
-    inCart: Boolean,
-    product: Product,
+    product: AdvancedProduct,
     onClick: (id: Int) -> Unit,
     onClickViewProduct: (id: Int) -> Unit,
     onClickViewCart: () -> Unit,
@@ -155,13 +156,13 @@ private fun SwipeToDelete(
         },
         dismissContent = {
             ProductListItem(
-                inCart = inCart,
+                role = role,
                 product = product,
                 onClickViewProduct = onClickViewProduct,
                 onClickViewCart = onClickViewCart,
                 onClickBuyProduct = onClickBuyProduct,
                 modifier = Modifier
-                    .clickable { onClick(product.id) }
+                    .clickable { onClick(product.product.id) }
             )
         }
     )
@@ -198,9 +199,9 @@ fun DismissBackground(dismissState: DismissState) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ProductList(
+    role: UserRole?,
     modifier: Modifier = Modifier,
-    productList: LazyPagingItems<Product>,
-    productCartList: List<Product>,
+    productList: LazyPagingItems<AdvancedProduct>,
     onClick: (id: Int) -> Unit,
     onClickViewProduct: (id: Int) -> Unit,
     onSwipe: (product: Product) -> Unit,
@@ -230,27 +231,36 @@ fun ProductList(
                             } else false
                         }, positionalThreshold = { 200.dp.toPx() }
                     )
-                    if (Product.contains(productCartList, product.id)) {
-                        inCart = true
-                    }
-                    AnimatedVisibility(
-                        show, exit = fadeOut(spring())
-                    ) {
-                        SwipeToDelete(
-                            dismissState = dismissState,
-                            product = product,
-                            inCart = inCart,
-                            onClick = onClick,
-                            onClickViewProduct = onClickViewProduct,
-                            onClickBuyProduct = onClickBuyProduct,
-                            onClickViewCart = onClickViewCart
-                        )
-                    }
-                    LaunchedEffect(show) {
-                        if (!show) {
-                            delay(800)
-                            onSwipe(product)
+                    if (role == UserRole.ADMIN) {
+                        AnimatedVisibility(
+                            show, exit = fadeOut(spring())
+                        ) {
+                            SwipeToDelete(
+                                role = role,
+                                dismissState = dismissState,
+                                product = product,
+                                onClick = onClick,
+                                onClickViewProduct = onClickViewProduct,
+                                onClickBuyProduct = onClickBuyProduct,
+                                onClickViewCart = onClickViewCart
+                            )
                         }
+                        LaunchedEffect(show) {
+                            if (!show) {
+                                delay(800)
+                                onSwipe(product.product)
+                            }
+                        }
+                    } else {
+                        ProductListItem(
+                            role = role,
+                            product = product,
+                            onClickViewProduct = onClickViewProduct,
+                            onClickViewCart = onClickViewCart,
+                            onClickBuyProduct = onClickBuyProduct,
+                            modifier = Modifier
+                                .clickable { onClick(product.product.id) }
+                        )
                     }
                 }
             }
@@ -260,8 +270,8 @@ fun ProductList(
 
 @Composable
 private fun ProductListItem(
-    inCart: Boolean,
-    product: Product,
+    role: UserRole?,
+    product: AdvancedProduct,
     modifier: Modifier = Modifier,
     onClickViewProduct: (id: Int) -> Unit,
     onClickViewCart: () -> Unit,
@@ -274,7 +284,7 @@ private fun ProductListItem(
             .padding(top = 10.dp)
             .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
             .clickable {
-                onClickViewProduct(product.id)
+                onClickViewProduct(product.product.id)
             },
     ) {
         Image(
@@ -282,7 +292,7 @@ private fun ProductListItem(
                 .width(110.dp)
                 .height(160.dp)
                 .padding(start = 10.dp),
-            bitmap = Product.toBitmap(product.image).asImageBitmap(),
+            bitmap = Product.toBitmap(product.product.image).asImageBitmap(),
             contentDescription = "Продукт"
         )
         Column(
@@ -295,34 +305,37 @@ private fun ProductListItem(
                     .padding(all = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (inCart) {
-                    Button(
-                        modifier = Modifier
-                            .width(130.dp)
-                            .height(40.dp),
-                        onClick = { onClickViewCart() }) {
-                        Text(stringResource(R.string.go_to_cart))
-                    }
-                } else {
-                    Button(
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(40.dp),
-                        onClick = { onClickBuyProduct(product.id) }) {
-                        Text(stringResource(R.string.product_buy))
+                if (role != null) {
+                    if (product.count > 0) {
+                        Button(
+                            modifier = Modifier
+                                .width(130.dp)
+                                .height(40.dp),
+                            onClick = { onClickViewCart() }) {
+                            Text(stringResource(R.string.go_to_cart))
+                        }
+                    } else {
+                        Button(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(40.dp),
+                            onClick = { onClickBuyProduct(product.product.id) }) {
+                            Text(stringResource(R.string.product_buy))
+                        }
                     }
                 }
-                Box(
-                    modifier = Modifier
-                        .padding(top = 7.dp, end = 10.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Home Icon",
-                        modifier = modifier
-                    )
+                if (role == UserRole.ADMIN) {
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 7.dp, end = 10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Home Icon",
+                            modifier = modifier
+                        )
+                    }
                 }
-
             }
             Column(
                 modifier = Modifier
@@ -332,12 +345,12 @@ private fun ProductListItem(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "${product.name}"
+                    text = "${product.product.name}"
                 )
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "${product.price}"
+                    text = "${product.product.price}"
                 )
             }
         }

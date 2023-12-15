@@ -12,7 +12,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +24,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.common.AppViewModelProvider
+import com.nodj.hardwareStore.db.models.User
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import kotlinx.coroutines.launch
 
 
@@ -33,7 +36,7 @@ fun Profile(
     navController: NavController,
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val userUiState = viewModel.userUiState
+    val user = LiveStore.user.observeAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     fun handleExitClick() {
@@ -41,12 +44,8 @@ fun Profile(
             viewModel.Exit(context)
         }
     }
-    LaunchedEffect(Unit) {
-        viewModel.refresh()
-    }
     Profile(
-        navController, userUiState,
-        onUpdate = viewModel::updateUiState,
+        navController = navController, user = user,
         onExitClick = {
             handleExitClick()
         },
@@ -58,8 +57,7 @@ fun Profile(
 @Composable
 fun Profile(
     navController: NavController,
-    userUiState: UserUiState,
-    onUpdate: (UserDetails) -> Unit,
+    user: State<User?>,
     onExitClick: () -> Unit
 ) {
     Column(
@@ -71,30 +69,34 @@ fun Profile(
             text = "Имя пользователя",
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp),
-            value = userUiState.userDetails.name,
-            onValueChange = { onUpdate(userUiState.userDetails.copy(name = it)) },
-            shape = RoundedCornerShape(15.dp),
-            placeholder = { Text("Имя") },
-        )
+        user?.value?.let {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp),
+                value = it.name,
+                onValueChange = { },
+                shape = RoundedCornerShape(15.dp),
+                placeholder = { Text("Имя") },
+            )
+        }
         Text(
             text = "Пароль пользователя",
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp),
-            value = userUiState.userDetails.password,
-            onValueChange = { onUpdate(userUiState.userDetails.copy(password = it)) },
-            shape = RoundedCornerShape(15.dp),
-            placeholder = { Text("Пароль") },
-            singleLine = true
-        )
-        if (LiveStore.getUserId() == 0) {
+        user.value?.let {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp),
+                value = it.password,
+                onValueChange = {},
+                shape = RoundedCornerShape(15.dp),
+                placeholder = { Text("Пароль") },
+                singleLine = true
+            )
+        }
+        if (user?.value?.id == 0) {
             Text(
                 text = "Вход",
                 modifier = Modifier.clickable {
@@ -124,13 +126,7 @@ fun Profile(
                 text = "Выйти",
                 modifier = Modifier.clickable {
                     onExitClick()
-                    navController.navigate("sign-in") {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    changeLocationDeprecated(navController, "sign-in")
                 }
             )
         }

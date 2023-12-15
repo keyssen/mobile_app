@@ -9,17 +9,16 @@ import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.db.models.Order
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
-import com.nodj.hardwareStore.db.models.manyToMany.OrderWithProducts
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
-import com.nodj.hardwareStore.db.repository.repositoryInterface.IncompleteProductRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.OrderRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.OrderWithProductsRepository
+import com.nodj.hardwareStore.db.repository.repositoryInterface.ProductRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.UserWithProductsRepository
 import kotlinx.coroutines.launch
 import java.util.Date
 
 class ProductListInCartViewModel(
-    private val productRepository: IncompleteProductRepository,
+    private val productRepository: ProductRepository,
     private val userWithProductsRepository: UserWithProductsRepository,
     private val orderWithProductsRepository: OrderWithProductsRepository,
     private val orderRepository: OrderRepository,
@@ -28,11 +27,6 @@ class ProductListInCartViewModel(
 
     var productListCartUiState by mutableStateOf(ProductListCartUiState())
         private set
-
-
-    init {
-        update()
-    }
 
     fun update() {
         viewModelScope.launch {
@@ -69,24 +63,8 @@ class ProductListInCartViewModel(
     }
 
     suspend fun createOrder(userId: Int) {
-        val productsByUser = productRepository.getAllByUser(userId)
-        if (!productsByUser.isEmpty()) {
-            var order = orderRepository.insert(Order(date = Date(), userId = userId))
-            if (order.toInt() != 0) {
-                productsByUser.forEach() {
-                    orderWithProductsRepository.insert(
-                        OrderWithProducts(
-                            orderId = order,
-                            productId = it.product.id.toLong(),
-                            count = it.count,
-                            currentPrice = it.product.price
-                        )
-                    )
-                }
-                userWithProductsRepository.deleteAllByUser(userId)
-                update()
-            }
-        }
+        orderRepository.insert(Order(date = Date(), userId = userId))
+        update()
     }
 }
 

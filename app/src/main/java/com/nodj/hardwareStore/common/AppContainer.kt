@@ -10,10 +10,10 @@ import com.nodj.hardwareStore.api.RestRepository.RestUserRepository
 import com.nodj.hardwareStore.api.RestRepository.RestUserWithProductsRepository
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.remotekeys.dao.OfflineRemoteKeyRepository
-import com.nodj.hardwareStore.db.repository.IncompleteOfflineProductRepository
 import com.nodj.hardwareStore.db.repository.OfflineCategoryRepository
 import com.nodj.hardwareStore.db.repository.OfflineOrderRepository
 import com.nodj.hardwareStore.db.repository.OfflineOrderWithProductsRepository
+import com.nodj.hardwareStore.db.repository.OfflineProductRepository
 import com.nodj.hardwareStore.db.repository.OfflineUserRepository
 import com.nodj.hardwareStore.db.repository.OfflineUserWithProductsRepository
 
@@ -39,8 +39,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
     private val userRepository: OfflineUserRepository by lazy {
         OfflineUserRepository(AppDatabase.getInstance(context).userDao())
     }
-    private val productRepository: IncompleteOfflineProductRepository by lazy {
-        IncompleteOfflineProductRepository(AppDatabase.getInstance(context).productDao())
+    private val productRepository: OfflineProductRepository by lazy {
+        OfflineProductRepository(AppDatabase.getInstance(context).productDao())
     }
     private val orderRepository: OfflineOrderRepository by lazy {
         OfflineOrderRepository(AppDatabase.getInstance(context).orderDao())
@@ -60,7 +60,10 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val restOrderRepository: RestOrderRepository by lazy {
         RestOrderRepository(
             MyServerService.getInstance(),
-            orderRepository
+            orderRepository,
+            orderWithProductsRepository,
+            userWithProductsRepository,
+            productRepository
         )
     }
     override val restCategoryRepository: RestCategoryRepository by lazy {

@@ -34,7 +34,6 @@ class SignInViewModel(
             if (user != null) {
                 val store = PreferencesStore(context)
                 store.setUsername(user.name)
-                store.setUserrole(user.role.toString())
                 userUiState = UserUiState()
                 return true
             }

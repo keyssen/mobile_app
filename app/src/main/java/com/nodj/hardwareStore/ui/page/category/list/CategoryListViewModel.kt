@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.category
+package com.nodj.hardwareStore.ui.page.category.list
 
 
 import androidx.lifecycle.ViewModel

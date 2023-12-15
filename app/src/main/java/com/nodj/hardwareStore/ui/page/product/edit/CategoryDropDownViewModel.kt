@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.product.edit
+package com.nodj.hardwareStore.ui.page.product.edit
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

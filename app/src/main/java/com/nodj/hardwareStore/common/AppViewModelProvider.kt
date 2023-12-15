@@ -7,18 +7,19 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nodj.hardwareStore.ui.ShopApplication
 import com.nodj.hardwareStore.ui.authenticator.AuthenticatorViewModel
-import com.nodj.hardwareStore.ui.category.CategoryListViewModel
-import com.nodj.hardwareStore.ui.category.edit.CategoryEditViewModel
 import com.nodj.hardwareStore.ui.page.cart.ProductListInCartViewModel
+import com.nodj.hardwareStore.ui.page.category.edit.CategoryEditViewModel
+import com.nodj.hardwareStore.ui.page.category.list.CategoryListViewModel
 import com.nodj.hardwareStore.ui.page.orders.OrdersViewModel
-import com.nodj.hardwareStore.ui.page.orders.order.OrderViewModel
+import com.nodj.hardwareStore.ui.page.orders.orderContent.OrderViewModel
+import com.nodj.hardwareStore.ui.page.product.ProductViewModel
+import com.nodj.hardwareStore.ui.page.product.edit.CategoryDropDownViewModel
+import com.nodj.hardwareStore.ui.page.product.edit.ProductEditViewModel
+import com.nodj.hardwareStore.ui.page.product.list.ProductListViewModel
 import com.nodj.hardwareStore.ui.page.profile.UserViewModel
 import com.nodj.hardwareStore.ui.page.report.ReportViewModel
 import com.nodj.hardwareStore.ui.page.signIn.SignInViewModel
 import com.nodj.hardwareStore.ui.page.signUp.SignUpViewModel
-import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
-import com.nodj.hardwareStore.ui.product.edit.ProductEditViewModel
-import com.nodj.hardwareStore.ui.product.list.ProductListViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -38,6 +39,12 @@ object AppViewModelProvider {
         }
         initializer {
             ProductEditViewModel(
+                this.createSavedStateHandle(),
+                shopApplication().container.restProductRepository
+            )
+        }
+        initializer {
+            ProductViewModel(
                 this.createSavedStateHandle(),
                 shopApplication().container.restProductRepository
             )

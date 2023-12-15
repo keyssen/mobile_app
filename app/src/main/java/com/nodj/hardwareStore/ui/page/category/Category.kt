@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.category
+package com.nodj.hardwareStore.ui.page.category
 
 
 import android.content.res.Configuration
@@ -24,17 +24,15 @@ import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.ui.MyApplicationTheme
-import com.nodj.hardwareStore.ui.category.edit.CategoryEditViewModel
-import com.nodj.hardwareStore.ui.category.edit.CategoryUiState
-import com.nodj.hardwareStore.ui.category.edit.toUiState
+import com.nodj.hardwareStore.ui.page.category.edit.CategoryEditViewModel
+import com.nodj.hardwareStore.ui.page.category.edit.CategoryUiState
+import com.nodj.hardwareStore.ui.page.category.edit.toUiState
 
 @Composable
-fun CategoryView(
-    navController: NavController,
+fun Category(
     viewModel: CategoryEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    CategoryView(
+    Category(
         categoryUiState = viewModel.categoryUiState,
     )
 }
@@ -42,7 +40,7 @@ fun CategoryView(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoryView(
+fun Category(
     categoryUiState: CategoryUiState,
 ) {
     Column(
@@ -69,7 +67,7 @@ fun ProductViewPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            CategoryView(
+            Category(
                 categoryUiState = Category.getEmpty().toUiState(),
             )
         }

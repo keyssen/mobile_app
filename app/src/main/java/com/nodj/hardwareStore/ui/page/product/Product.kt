@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.product
+package com.nodj.hardwareStore.ui.page.product
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -26,20 +26,19 @@ import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.ui.MyApplicationTheme
-import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
-import com.nodj.hardwareStore.ui.product.edit.CategoryUiState
-import com.nodj.hardwareStore.ui.product.edit.ProductEditViewModel
-import com.nodj.hardwareStore.ui.product.edit.ProductUiState
-import com.nodj.hardwareStore.ui.product.edit.toUiState
+import com.nodj.hardwareStore.ui.page.product.edit.CategoryDropDownViewModel
+import com.nodj.hardwareStore.ui.page.product.edit.CategoryUiState
+import com.nodj.hardwareStore.ui.page.product.edit.ProductUiState
+import com.nodj.hardwareStore.ui.page.product.edit.toUiState
 
 @Composable
-fun ProductView(
+fun Product(
     navController: NavController,
-    viewModel: ProductEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: ProductViewModel = viewModel(factory = AppViewModelProvider.Factory),
     categoryViewModel: CategoryDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     categoryViewModel.setCurrentCategory(viewModel.productUiState.productDetails.categoryId)
-    ProductView(
+    Product(
         productUiState = viewModel.productUiState,
         categoryUiState = categoryViewModel.categoryUiState,
     )
@@ -48,7 +47,7 @@ fun ProductView(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductView(
+fun Product(
     productUiState: ProductUiState,
     categoryUiState: CategoryUiState,
 ) {
@@ -99,7 +98,7 @@ fun ProductViewPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            ProductView(
+            Product(
                 productUiState = Product.getEmpty().toUiState(true),
                 categoryUiState = Category.getEmpty().toUiState(),
             )

@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.category.edit
+package com.nodj.hardwareStore.ui.page.category.edit
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

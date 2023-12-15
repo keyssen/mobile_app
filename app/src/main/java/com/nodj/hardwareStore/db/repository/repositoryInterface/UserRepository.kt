@@ -1,15 +1,11 @@
 package com.nodj.hardwareStore.db.repository.repositoryInterface
 
-import androidx.paging.PagingData
 import androidx.room.Dao
 import com.nodj.hardwareStore.db.models.User
-import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface UserRepository {
-    fun getAll(): Flow<PagingData<User>>
-
     suspend fun getByName(name: String): User?
 
     suspend fun getByNamePassword(name: String, password: String): User?

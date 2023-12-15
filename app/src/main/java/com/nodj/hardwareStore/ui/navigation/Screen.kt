@@ -26,24 +26,24 @@ enum class Screen(
         "product-list", R.string.product_main_title, Icons.Filled.Home
     ),
     ProductEdit(
-        "product-edit/{id}", R.string.product_main_title, Icons.Filled.Home
+        "product-edit/{id}", R.string.product_main_title, Icons.Filled.Home, showInBottomBar = false
     ),
     Search(
         "search", R.string.product_main_title, Icons.Filled.Search
     ),
-    ProductView(
+    Product(
         "product-view/{id}", R.string.product_view_title, showInBottomBar = false
     ),
-    OrderView(
+    Order(
         "order-view/{id}", R.string.product_orders, showInBottomBar = false
     ),
-    CategoryView(
+    Category(
         "category-view/{id}", R.string.product_view_title, showInBottomBar = false
     ),
     CategoryEdit(
-        "category-edit/{id}", R.string.product_category, Icons.Filled.Home
+        "category-edit/{id}", R.string.product_category, Icons.Filled.Home, showInBottomBar = false
     ),
-    Catalog(
+    Categories(
         "catalog", R.string.product_catalog, Icons.Filled.List
     ),
     Cart(
@@ -69,7 +69,7 @@ enum class Screen(
     companion object {
         val bottomBarItems = listOf(
             ProductList,
-            Catalog,
+            Categories,
             Cart,
             Orders,
             Profile,

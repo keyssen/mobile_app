@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -22,6 +21,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,12 +42,12 @@ import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.ui.MyApplicationTheme
-import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
-import com.nodj.hardwareStore.ui.product.edit.CategoryUiState
-import com.nodj.hardwareStore.ui.product.edit.CategorysListUiState
-import com.nodj.hardwareStore.ui.product.edit.ProductDetails
-import com.nodj.hardwareStore.ui.product.edit.ProductEditViewModel
-import com.nodj.hardwareStore.ui.product.edit.ProductUiState
+import com.nodj.hardwareStore.ui.page.product.edit.CategoryDropDownViewModel
+import com.nodj.hardwareStore.ui.page.product.edit.CategoryUiState
+import com.nodj.hardwareStore.ui.page.product.edit.CategorysListUiState
+import com.nodj.hardwareStore.ui.page.product.edit.ProductDetails
+import com.nodj.hardwareStore.ui.page.product.edit.ProductEditViewModel
+import com.nodj.hardwareStore.ui.page.product.edit.ProductUiState
 import kotlinx.coroutines.launch
 import okio.IOException
 import java.io.ByteArrayOutputStream

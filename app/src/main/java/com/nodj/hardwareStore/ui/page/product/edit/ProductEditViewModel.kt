@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.product.edit
+package com.nodj.hardwareStore.ui.page.product.edit
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,12 +7,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.db.models.Product
-import com.nodj.hardwareStore.db.repository.repositoryInterface.IncompleteProductRepository
+import com.nodj.hardwareStore.db.repository.repositoryInterface.ProductRepository
 import kotlinx.coroutines.launch
 
 class ProductEditViewModel(
     savedStateHandle: SavedStateHandle,
-    private val productRepository: IncompleteProductRepository,
+    private val productRepository: ProductRepository,
 
     ) : ViewModel() {
 
