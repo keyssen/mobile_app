@@ -14,10 +14,7 @@ class OfflineUserWithProductsRepository(private val userWithProductsDao: UserWit
     override suspend fun deleteAllByUser(userId: Int) = userWithProductsDao.deleteAllByUser(userId)
 
     override suspend fun insert(userWithProducts: UserWithProducts) {
-        val UserWithProducts = getByUserProduct(userWithProducts.productId, userWithProducts.userId)
-        if (UserWithProducts == null) {
-            userWithProductsDao.insert(userWithProducts)
-        }
+        userWithProductsDao.insert(userWithProducts)
     }
 
     suspend fun insertUserWithProducts(userWithProducts: List<UserWithProducts>) =

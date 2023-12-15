@@ -13,7 +13,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -23,9 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.models.Product
-import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
 import com.nodj.hardwareStore.ui.product.edit.CategoryUiState
@@ -39,17 +38,10 @@ fun ProductView(
     viewModel: ProductEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
     categoryViewModel: CategoryDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val coroutineScope = rememberCoroutineScope()
     categoryViewModel.setCurrentCategory(viewModel.productUiState.productDetails.categoryId)
     ProductView(
         productUiState = viewModel.productUiState,
         categoryUiState = categoryViewModel.categoryUiState,
-        onClick = {
-//            coroutineScope.launch {
-//                viewModel.saveProduct()
-//                navController.popBackStack()
-//            }
-        },
     )
 }
 
@@ -59,7 +51,6 @@ fun ProductView(
 fun ProductView(
     productUiState: ProductUiState,
     categoryUiState: CategoryUiState,
-    onClick: () -> Unit,
 ) {
     Column(
         Modifier
@@ -68,13 +59,12 @@ fun ProductView(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (productUiState.productDetails.image.size > 0){
+        if (productUiState.productDetails.image.size > 0) {
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f),
                 bitmap = Product.toBitmap(productUiState.productDetails.image).asImageBitmap(),
-//            painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
                 contentDescription = "Продукт"
             )
         }
@@ -85,7 +75,9 @@ fun ProductView(
             }
         )
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-            value = productUiState.productDetails.price.toString(), onValueChange = {}, readOnly = true,
+            value = productUiState.productDetails.price.toString(),
+            onValueChange = {},
+            readOnly = true,
             label = {
                 Text(stringResource(id = R.string.product_price))
             }
@@ -110,7 +102,6 @@ fun ProductViewPreview() {
             ProductView(
                 productUiState = Product.getEmpty().toUiState(true),
                 categoryUiState = Category.getEmpty().toUiState(),
-                onClick = {}
             )
         }
     }

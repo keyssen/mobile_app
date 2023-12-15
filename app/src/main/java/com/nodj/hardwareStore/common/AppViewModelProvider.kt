@@ -7,13 +7,15 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nodj.hardwareStore.ui.ShopApplication
 import com.nodj.hardwareStore.ui.authenticator.AuthenticatorViewModel
-import com.nodj.hardwareStore.ui.category.CategorizedProductsViewModel
 import com.nodj.hardwareStore.ui.category.CategoryListViewModel
 import com.nodj.hardwareStore.ui.category.edit.CategoryEditViewModel
 import com.nodj.hardwareStore.ui.page.cart.ProductListInCartViewModel
 import com.nodj.hardwareStore.ui.page.orders.OrdersViewModel
 import com.nodj.hardwareStore.ui.page.orders.order.OrderViewModel
 import com.nodj.hardwareStore.ui.page.profile.UserViewModel
+import com.nodj.hardwareStore.ui.page.report.ReportViewModel
+import com.nodj.hardwareStore.ui.page.signIn.SignInViewModel
+import com.nodj.hardwareStore.ui.page.signUp.SignUpViewModel
 import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
 import com.nodj.hardwareStore.ui.product.edit.ProductEditViewModel
 import com.nodj.hardwareStore.ui.product.list.ProductListViewModel
@@ -23,7 +25,7 @@ object AppViewModelProvider {
         initializer {
             ProductListViewModel(
                 shopApplication().container.restProductRepository,
-                shopApplication().container.restUserWithProductsRepository
+                shopApplication().container.restUserWithProductsRepository,
             )
         }
         initializer {
@@ -32,12 +34,6 @@ object AppViewModelProvider {
                 shopApplication().container.restUserWithProductsRepository,
                 shopApplication().container.restOrderWithProductsRepository,
                 shopApplication().container.restOrderRepository,
-//                OrderService(
-//                    shopApplication().container.orderRepository,
-//                    shopApplication().container.productRepository,
-//                    shopApplication().container.orderWithProductsRepository,
-//                    shopApplication().container.userWithProductsRepository,
-//                )
             )
         }
         initializer {
@@ -79,15 +75,23 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            CategorizedProductsViewModel(
-                shopApplication().container.restProductRepository,
-                shopApplication().container.restUserWithProductsRepository,
-                this.createSavedStateHandle()
+            SignInViewModel(
+                shopApplication().container.restUserRepository
+            )
+        }
+        initializer {
+            SignUpViewModel(
+                shopApplication().container.restUserRepository
             )
         }
         initializer {
             AuthenticatorViewModel(
                 shopApplication().container.restUserRepository,
+            )
+        }
+        initializer {
+            ReportViewModel(
+                shopApplication().container.service,
             )
         }
     }

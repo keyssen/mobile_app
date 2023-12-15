@@ -127,11 +127,15 @@ fun CategoryList(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text("${category.name}")
-                            IconButton(onClick = { onClickDelete(category.id) }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Удалить")
-                            }
-                            IconButton(onClick = { onClickEdit(category.id) }) {
-                                Icon(Icons.Filled.Edit, contentDescription = "Изменить")
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                IconButton(onClick = { onClickDelete(category.id) }) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Удалить")
+                                }
+                                IconButton(onClick = { onClickEdit(category.id) }) {
+                                    Icon(Icons.Filled.Edit, contentDescription = "Изменить")
+                                }
                             }
                         }
                     }

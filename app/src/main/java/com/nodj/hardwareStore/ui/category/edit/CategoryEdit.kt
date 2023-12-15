@@ -51,8 +51,6 @@ fun CategoryEdit(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
-
-        // content padding
         contentPadding = PaddingValues(
             start = 10.dp,
             top = 10.dp,
@@ -91,7 +89,6 @@ fun CategoryEditPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-//            CategoryView(id = 0)
         }
     }
 }

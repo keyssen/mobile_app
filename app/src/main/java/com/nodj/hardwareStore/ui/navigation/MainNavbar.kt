@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,19 +32,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.nodj.hardwareStore.LiveStore
+import com.nodj.hardwareStore.db.models.UserRole
+import com.nodj.hardwareStore.db.theme.order.OrderList
 import com.nodj.hardwareStore.db.theme.order.OrderView
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.UI.Search
-import com.nodj.hardwareStore.ui.category.CategorizedProducts
 import com.nodj.hardwareStore.ui.category.CategoryList
+import com.nodj.hardwareStore.ui.category.CategoryView
 import com.nodj.hardwareStore.ui.category.edit.CategoryEdit
-import com.nodj.hardwareStore.ui.page.SignIn
-import com.nodj.hardwareStore.ui.page.SignUp
 import com.nodj.hardwareStore.ui.page.cart.Cart
-import com.nodj.hardwareStore.ui.page.orders.Orders
 import com.nodj.hardwareStore.ui.page.profile.Profile
+import com.nodj.hardwareStore.ui.page.report.Report
+import com.nodj.hardwareStore.ui.page.signIn.SignIn
+import com.nodj.hardwareStore.ui.page.signUp.SignUp
 import com.nodj.hardwareStore.ui.product.ProductEdit
 import com.nodj.hardwareStore.ui.product.ProductList
+import com.nodj.hardwareStore.ui.product.ProductView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,13 +59,14 @@ fun TopBar(currentScreen: Screen?) {
             .background(MaterialTheme.colorScheme.surface)
             .padding(10.dp)
     ) {
-        if (currentScreen == null) {
-            Search()
-        }
-        if (currentScreen?.route == "sign-in" || currentScreen?.route == "sign-up" || currentScreen?.route == "profile") {
+        if (currentScreen?.route == Screen.SignIn.route || currentScreen?.route == Screen.SignUp.route || currentScreen?.route == Screen.Profile.route) {
             Text(stringResource(currentScreen.resourceId))
+        } else if (currentScreen?.route == Screen.ProductList.route) {
+            Search(initValue = LiveStore.searchRequest.value ?: "",
+                onDone = {
+                    LiveStore.searchRequest.value = it
+                })
         } else {
-            Search()
         }
     }
 }
@@ -76,31 +82,70 @@ fun Navbar(
         modifier,
         containerColor = appBarBackgroundColor
     ) {
+        val user = LiveStore.user.observeAsState()
         Screen.bottomBarItems.forEach { screen ->
-            NavigationBarItem(
-                icon = {
-                    if (screen.icon == null) {
-                        if (screen.iconId != null) {
-                            Icon(
-                                painter = painterResource(id = screen.iconId),
-                                contentDescription = null
-                            )
+            if (screen.route == Screen.Report.route && user.value?.role == UserRole.ADMIN) {
+                NavigationBarItem(
+                    icon = {
+                        if (screen.icon == null) {
+                            if (screen.iconId != null) {
+                                Icon(
+                                    painter = painterResource(id = screen.iconId),
+                                    contentDescription = null
+                                )
+                            }
+                        } else {
+                            Icon(screen.icon, contentDescription = null)
                         }
-                    } else {
-                        Icon(screen.icon, contentDescription = null)
-                    }
-                },
-                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                onClick = {
-                    navController.navigate(screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    },
+                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                    onClick = {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
+
                     }
-                }
-            )
+                )
+            } else if (screen.route != Screen.Report.route) {
+                NavigationBarItem(
+                    icon = {
+                        if (screen.icon == null) {
+                            if (screen.iconId != null) {
+                                Icon(
+                                    painter = painterResource(id = screen.iconId),
+                                    contentDescription = null
+                                )
+                            }
+                        } else {
+                            Icon(screen.icon, contentDescription = null)
+                        }
+                    },
+                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                    onClick = {
+                        if (screen.route == Screen.Profile.route && LiveStore.getUserId() == 0) {
+                            navController.navigate(Screen.SignIn.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        } else {
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -139,20 +184,21 @@ fun Navhost(
             Screen.CategoryView.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            CategorizedProducts(navController)
+            CategoryView(navController)
         }
-//        composable(
-//            Screen.CartId.route,
-//            arguments = listOf(navArgument("id") { type = NavType.IntType })
-//        ) {
-//            Cart(navController)
-//        }
+        composable(
+            Screen.ProductView.route,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            ProductView(navController)
+        }
         composable(Screen.Catalog.route) { CategoryList(navController) }
         composable(Screen.Cart.route) { Cart(navController) }
-        composable(Screen.Orders.route) { Orders(navController) }
+        composable(Screen.Orders.route) { OrderList(navController) }
         composable(Screen.SignIn.route) { SignIn(navController) }
         composable(Screen.SignUp.route) { SignUp(navController) }
         composable(Screen.Profile.route) { Profile(navController) }
+        composable(Screen.Report.route) { Report(navController) }
     }
 }
 

@@ -31,6 +31,15 @@ class UserViewModel(
         }
     }
 
+    fun refresh() {
+        viewModelScope.launch {
+            if (LiveStore.getUserId() != 0) {
+                userUiState = userRepository.getByid(LiveStore.getUserId())
+                    ?.toUiState(true) ?: UserUiState()
+            }
+        }
+    }
+
     fun updateUiState(userDetails: UserDetails) {
         userUiState = UserUiState(
             userDetails = userDetails,
@@ -38,25 +47,11 @@ class UserViewModel(
         )
     }
 
-    suspend fun signUp(context: Context) {
-        if (validateInput()) {
-            userRepository.insert(userUiState.userDetails.toUser())
-        }
-    }
-
-    suspend fun SignIn(context: Context): Boolean {
-        if (validateInput()) {
-            val user = userRepository.getByNamePassword(
-                userUiState.userDetails.name,
-                userUiState.userDetails.password
-            )
-            if (user != null) {
-                val store = PreferencesStore(context)
-                store.setUsername(user.name)
-                return true
-            }
-        }
-        return false
+    suspend fun Exit(context: Context) {
+        val store = PreferencesStore(context)
+        store.setUsername("")
+        store.setUserrole("")
+        userUiState = UserUiState()
     }
 
     private fun validateInput(uiState: UserDetails = userUiState.userDetails): Boolean {
@@ -70,7 +65,8 @@ class UserViewModel(
 
 data class UserUiState(
     val userDetails: UserDetails = UserDetails(),
-    val isEntryValid: Boolean = false
+    val isEntryValid: Boolean = false,
+    val errorMessage: String = ""
 )
 
 data class UserDetails(

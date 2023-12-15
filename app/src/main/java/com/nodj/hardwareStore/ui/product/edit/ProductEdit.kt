@@ -5,19 +5,14 @@ import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,7 +22,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +31,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,7 +41,6 @@ import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
-import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.product.edit.CategoryDropDownViewModel
 import com.nodj.hardwareStore.ui.product.edit.CategoryUiState
@@ -67,7 +59,6 @@ fun ProductEdit(
     viewModel: ProductEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
     categoryViewModel: CategoryDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     categoryViewModel.setCurrentCategory(viewModel.productUiState.productDetails.categoryId)
     ProductEdit(
@@ -161,36 +152,6 @@ fun ImageSelectionScreen(
     }
 }
 
-@Composable
-fun ImageSelectionScreen324242() {
-    val context = LocalContext.current
-    var isFlag by remember { mutableStateOf(false) }
-    var byteArray: ByteArray = byteArrayOf(0x48, 101, 108, 108, 111)
-    Button(onClick = {
-        byteArray = convertFileInputStreamToByteArray(context.openFileInput("image.jpg"))!!
-        isFlag = true
-    }) {
-        Text(text = "Image")
-        if (isFlag) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 10.dp)
-            ) {
-                Image(
-                    modifier = Modifier
-                        .width(110.dp)
-                        .height(160.dp)
-                        .padding(start = 10.dp),
-//                    painter = painterResource(R.drawable.i2),
-                    bitmap = Product.toBitmap(byteArray).asImageBitmap(),
-                    contentDescription = "Продукт"
-                )
-            }
-        }
-    }
-}
-
 fun saveImageToInternalStorage(context: Context, uri: Uri) {
     val inputStream = context.contentResolver.openInputStream(uri)
     val outputStream = context.openFileOutput("image.jpg", Context.MODE_PRIVATE)
@@ -254,19 +215,6 @@ fun ProductEdit(
                     onUpdate
                 )
             }
-//            if (productUiState.productDetails.image.size > 0) {
-//                item {
-//                    Image(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .aspectRatio(1f),
-//                        bitmap = Product.toBitmap(productUiState.productDetails.image)
-//                            .asImageBitmap(),
-////                    painter = painterResource(if (productUiState.productDetails.imageId > 0) productUiState.productDetails.imageId else R.drawable.i2 ),
-//                        contentDescription = "Продукт"
-//                    )
-//                }
-//            }
             item {
                 OutlinedTextField(modifier = Modifier.fillMaxWidth(),
                     value = productUiState.productDetails.name,
@@ -319,7 +267,6 @@ fun ProductEditPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-//            ProductView(id = 0)
         }
     }
 }

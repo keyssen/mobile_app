@@ -1,6 +1,6 @@
-package com.nodj.hardwareStore.ui.page
+package com.nodj.hardwareStore.ui.page.signUp
 
-import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,36 +26,32 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.common.AppViewModelProvider
-import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.ui.navigation.Screen
-import com.nodj.hardwareStore.ui.navigation.changeLocation
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import com.nodj.hardwareStore.ui.page.profile.UserDetails
 import com.nodj.hardwareStore.ui.page.profile.UserUiState
-import com.nodj.hardwareStore.ui.page.profile.UserViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUp(
     navController: NavController,
-    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: SignUpViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
     val userUiState = viewModel.userUiState
     fun handleSignuPButtonClick() {
         scope.launch {
-            viewModel.signUp(context)
-//            if () {
-//                changeLocation(navController, Screen.Profile.route)
-//            }
+            if (viewModel.signUp()) {
+                changeLocationDeprecated(navController, Screen.SignIn.route)
+            }
+
         }
     }
     SignUp(
@@ -83,12 +82,15 @@ fun SignUp(
         )
         OutlinedTextField(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp),
+                .fillMaxWidth(),
             value = userUiState.userDetails.name,
             onValueChange = { onUpdate(userUiState.userDetails.copy(name = it)) },
             shape = RoundedCornerShape(15.dp),
             placeholder = { Text("Логин") },
+        )
+        Text(
+            text = userUiState.errorMessage,
+            color = Color.Red
         )
         Text(
             text = "Введите пароль",
@@ -103,6 +105,17 @@ fun SignUp(
             shape = RoundedCornerShape(15.dp),
             placeholder = { Text("пароль") },
             singleLine = true
+        )
+        Text(
+            text = "Выберите роль",
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        RoleDropDown(
+            userUiState = userUiState,
+            roleList = enumValues<UserRole>().toList(),
+            onRoleUpdate = {
+                onUpdate(userUiState.userDetails.copy(role = it))
+            }
         )
         Button(
             modifier = Modifier
@@ -126,15 +139,51 @@ fun SignUp(
     }
 }
 
-//@Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
-//@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//fun SignUpPreview() {
-//    MyApplicationTheme {
-//        Surface(
-//            color = MaterialTheme.colorScheme.background
-//        ) {
-//            SignUp(navController = null)
-//        }
-//    }
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RoleDropDown(
+    userUiState: UserUiState,
+    roleList: List<UserRole>,
+    onRoleUpdate: (UserRole) -> Unit
+) {
+    var expanded: Boolean by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        modifier = Modifier
+            .padding(bottom = 20.dp),
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+        }
+    ) {
+        TextField(
+            value = userUiState.userDetails.role.name,
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .exposedDropdownSize()
+        ) {
+            roleList.forEach { role ->
+                DropdownMenuItem(
+                    text = {
+                        Text(text = role.name)
+                    },
+                    onClick = {
+                        onRoleUpdate(role)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}

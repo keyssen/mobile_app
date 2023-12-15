@@ -8,7 +8,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.LiveStore
-import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
 import com.nodj.hardwareStore.db.repository.repositoryInterface.IncompleteProductRepository
@@ -48,5 +47,3 @@ class OrderViewModel(
 }
 
 data class OrderUiState(val productList: List<ProductFromOrder> = listOf())
-
-data class ProductListCartUiState(val productListCart: List<Product> = listOf())

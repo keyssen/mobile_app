@@ -24,6 +24,7 @@ interface AppContainer {
     val restUserWithProductsRepository: RestUserWithProductsRepository
     val restOrderWithProductsRepository: RestOrderWithProductsRepository
     val restOrderRepository: RestOrderRepository
+    val service: MyServerService
 
     companion object {
         const val TIMEOUT = 5000L
@@ -52,6 +53,9 @@ class AppDataContainer(private val context: Context) : AppContainer {
     }
     private val remoteKeyRepository: OfflineRemoteKeyRepository by lazy {
         OfflineRemoteKeyRepository(AppDatabase.getInstance(context).remoteKeysDao())
+    }
+    override val service: MyServerService by lazy {
+        MyServerService.getInstance()
     }
     override val restOrderRepository: RestOrderRepository by lazy {
         RestOrderRepository(

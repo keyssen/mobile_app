@@ -4,6 +4,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.nodj.hardwareStore.api.model.CategoryRemote
 import com.nodj.hardwareStore.api.model.OrderRemote
 import com.nodj.hardwareStore.api.model.ProductRemote
+import com.nodj.hardwareStore.api.model.ReportRemote
 import com.nodj.hardwareStore.api.model.UserRemote
 import com.nodj.hardwareStore.api.model.helperModel.AdvancedProductRemote
 import com.nodj.hardwareStore.api.model.helperModel.ProductFromOrderRemote
@@ -64,6 +65,17 @@ interface MyServerService {
     suspend fun getUser(
         @Path("id") id: Int,
     ): UserRemote
+
+    @GET("users")
+    suspend fun getUserByName(
+        @Query("name") name: String,
+    ): List<UserRemote>
+
+    @GET("users")
+    suspend fun getUserByNamePassword(
+        @Query("name") name: String,
+        @Query("password") password: String,
+    ): List<UserRemote>
 
     @POST("users")
     suspend fun createUser(
@@ -189,6 +201,12 @@ interface MyServerService {
         @Query("userId") userId: Int,
     ): List<OrderRemote>
 
+    @GET("report")
+    suspend fun getReport(
+        @Query("startDate") startDate: String,
+        @Query("endDate") endDate: String,
+    ): List<ReportRemote>
+
     companion object {
         private const val BASE_URL = "http://192.168.215.189:8079/"
 
@@ -216,6 +234,3 @@ interface MyServerService {
         }
     }
 }
-
-
-

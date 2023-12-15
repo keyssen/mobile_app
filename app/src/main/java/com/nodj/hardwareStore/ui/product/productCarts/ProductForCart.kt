@@ -77,7 +77,6 @@ fun ProductForCart(
                 .height(160.dp)
                 .padding(start = 10.dp),
             bitmap = Product.toBitmap(advancedProduct.product.image).asImageBitmap(),
-//            bitmap = ImageBitmap.imageResource(advancedProduct.product.imageId),
             contentDescription = "Продукт"
         )
         Column(
@@ -141,11 +140,6 @@ fun ProductForCart(
     }
 }
 
-suspend fun updateUserWithProducts(context: Context, productId: Int, UserId: Int, count: Int) {
-    val userWithProducts = UserWithProducts(UserId, productId, count)
-    AppDatabase.getInstance(context).userWithProductsDao().update(userWithProducts)
-}
-
 @Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -161,7 +155,6 @@ fun ProductForCartPreview() {
                     productInCart.value = AppDatabase.getInstance(context).productDao().get(1, 1)
                 }
             }
-//            ProductForCart(context, navController = null, productInCart.value)
         }
     }
 }

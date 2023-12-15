@@ -1,10 +1,12 @@
 package com.nodj.hardwareStore.ui.page.cart
 
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.LiveStore
-import com.nodj.hardwareStore.common.AppContainer
 import com.nodj.hardwareStore.db.models.Order
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.db.models.manyToMany.OrderWithProducts
@@ -13,10 +15,6 @@ import com.nodj.hardwareStore.db.repository.repositoryInterface.IncompleteProduc
 import com.nodj.hardwareStore.db.repository.repositoryInterface.OrderRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.OrderWithProductsRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.UserWithProductsRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -28,16 +26,9 @@ class ProductListInCartViewModel(
 
     ) : ViewModel() {
 
-//    val productListCartUiState: Flow<PagingData<AdvancedProduct>> = productRepository.getByUser(1)
+    var productListCartUiState by mutableStateOf(ProductListCartUiState())
+        private set
 
-    val productListCartUiState: StateFlow<ProductListCartUiState> =
-        productRepository.getAllByUserFlow(LiveStore.getUserId()).map {
-            ProductListCartUiState(it)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = AppContainer.TIMEOUT),
-            initialValue = ProductListCartUiState()
-        )
 
     init {
         update()
@@ -45,19 +36,20 @@ class ProductListInCartViewModel(
 
     fun update() {
         viewModelScope.launch {
-            userWithProductsRepository.getAll()
+            productListCartUiState =
+                ProductListCartUiState(productRepository.getAllByUser(LiveStore.getUserId()))
         }
     }
 
     suspend fun deleteProductInCart(userId: Int, productid: Int) {
         userWithProductsRepository.delete(UserWithProducts(userId, productid))
-        /*        update()*/
+        update()
     }
 
     suspend fun plusProductInCart(userId: Int, productid: Int) {
         val product = userWithProductsRepository.getByUserProduct(productid, userId)
         userWithProductsRepository.update(UserWithProducts(userId, productid, product.count + 1))
-        /* update()*/
+        update()
     }
 
     suspend fun minusProductInCart(userId: Int, productid: Int) {
@@ -73,29 +65,29 @@ class ProductListInCartViewModel(
                 )
             )
         }
-        /*update()*/
+        update()
     }
 
     suspend fun createOrder(userId: Int) {
-        var order = orderRepository.insert(Order(date = Date(), userId = userId))
-        if (order.toInt() != 0) {
-            productRepository.getAllByUser(userId).forEach() {
-                orderWithProductsRepository.insert(
-                    OrderWithProducts(
-                        orderId = order,
-                        productId = it.product.id.toLong(),
-                        count = it.count,
-                        currentPrice = it.product.price
+        val productsByUser = productRepository.getAllByUser(userId)
+        if (!productsByUser.isEmpty()) {
+            var order = orderRepository.insert(Order(date = Date(), userId = userId))
+            if (order.toInt() != 0) {
+                productsByUser.forEach() {
+                    orderWithProductsRepository.insert(
+                        OrderWithProducts(
+                            orderId = order,
+                            productId = it.product.id.toLong(),
+                            count = it.count,
+                            currentPrice = it.product.price
+                        )
                     )
-                )
+                }
+                userWithProductsRepository.deleteAllByUser(userId)
+                update()
             }
-            userWithProductsRepository.deleteAllByUser(userId)
         }
     }
-
-//    suspend fun createOrder(userId: Int) {
-//        orderService.createOrder(userId)
-//    }
 }
 
 data class ProductListCartUiState(val productListCart: List<AdvancedProduct> = listOf())

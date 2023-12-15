@@ -31,6 +31,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.ui.MyApplicationTheme
@@ -58,7 +59,6 @@ fun ProductForCatalog(navController: NavController?, inTheBasket: Boolean = true
                 .height(160.dp)
                 .padding(start = 10.dp),
             bitmap = Product.toBitmap(product.image).asImageBitmap(),
-//            bitmap = ImageBitmap.imageResource(product.imageId),
             contentDescription = "Продукт"
         )
         Column(
@@ -69,23 +69,25 @@ fun ProductForCatalog(navController: NavController?, inTheBasket: Boolean = true
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
-                if (!inTheBasket){
-                    Button(
-                        modifier = Modifier
-                            .padding(all = 10.dp)
-                            .width(100.dp)
-                            .height(40.dp),
-                        onClick = { navController?.navigate(productId) }) {
-                        Text("Купить")
-                    }
-                } else {
-                    Button(
-                        modifier = Modifier
-                            .padding(all = 10.dp)
-                            .width(175.dp)
-                            .height(40.dp),
-                        onClick = { navController?.navigate(productId) }) {
-                        Text("Перейти в корзину")
+                if (LiveStore.getUserId() != 0){
+                    if (!inTheBasket){
+                        Button(
+                            modifier = Modifier
+                                .padding(all = 10.dp)
+                                .width(100.dp)
+                                .height(40.dp),
+                            onClick = { navController?.navigate(productId) }) {
+                            Text("Купить")
+                        }
+                    } else {
+                        Button(
+                            modifier = Modifier
+                                .padding(all = 10.dp)
+                                .width(175.dp)
+                                .height(40.dp),
+                            onClick = { navController?.navigate(productId) }) {
+                            Text("Перейти в корзину")
+                        }
                     }
                 }
             }

@@ -13,12 +13,20 @@ class PreferencesStore(private val context: Context) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("Store")
         val USERNAME = stringPreferencesKey("username")
+        val USERROLE = stringPreferencesKey("userrole")
     }
 
     fun getUsername(): Flow<String> {
         return context.dataStore.data
             .map { preferences ->
                 preferences[USERNAME] ?: ""
+            }
+    }
+
+    fun getUserrole(): Flow<String> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[USERROLE] ?: ""
             }
     }
 
@@ -30,5 +38,9 @@ class PreferencesStore(private val context: Context) {
 
     suspend fun setUsername(username: String) {
         saveStringValue(USERNAME, username)
+    }
+
+    suspend fun setUserrole(userrole: String) {
+        saveStringValue(USERROLE, userrole)
     }
 }

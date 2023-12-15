@@ -24,9 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
@@ -42,14 +39,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -68,6 +63,7 @@ import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
+import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import com.nodj.hardwareStore.ui.product.list.ProductListViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -80,7 +76,10 @@ fun ProductList(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val productListUiState = viewModel.productListUiState.collectAsLazyPagingItems()
-    val productListCartUiState by viewModel.productListCartUiState.collectAsState()
+    val productListCartUiState = viewModel.productListCartUiState
+    LaunchedEffect(Unit) {
+        viewModel.update()
+    }
     Scaffold(
         topBar = {},
         floatingActionButton = {
@@ -95,7 +94,6 @@ fun ProductList(
         }
     ) { innerPadding ->
         ProductList(
-//            update = { viewModel.update() },
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
@@ -109,9 +107,9 @@ fun ProductList(
                 val route = Screen.ProductView.route.replace("{id}", id.toString())
                 navController.navigate(route)
             },
-            onClickViewCart = { id: Int ->
-                val route = Screen.CartId.route.replace("{id}", id.toString())
-                navController.navigate(route)
+            onClickViewCart = {
+                val route = Screen.Cart.route
+                changeLocationDeprecated(navController, route)
             },
             onClickBuyProduct = { id: Int ->
                 coroutineScope.launch {
@@ -136,7 +134,7 @@ private fun SwipeToDelete(
     product: Product,
     onClick: (id: Int) -> Unit,
     onClickViewProduct: (id: Int) -> Unit,
-    onClickViewCart: (id: Int) -> Unit,
+    onClickViewCart: () -> Unit,
     onClickBuyProduct: (id: Int) -> Unit
 ) {
     SwipeToDismiss(
@@ -193,7 +191,6 @@ fun DismissBackground(dismissState: DismissState) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ProductList(
-//    update: () -> Unit,
     modifier: Modifier = Modifier,
     productList: LazyPagingItems<Product>,
     productCartList: List<Product>,
@@ -201,75 +198,55 @@ fun ProductList(
     onClickViewProduct: (id: Int) -> Unit,
     onSwipe: (product: Product) -> Unit,
     onClickBuyProduct: (id: Int) -> Unit,
-    onClickViewCart: (id: Int) -> Unit,
+    onClickViewCart: () -> Unit,
 ) {
-    val refreshScope = rememberCoroutineScope()
-    var refreshing by remember { mutableStateOf(false) }
-    fun refresh() = refreshScope.launch {
-        refreshing = true
-//        update()
-        productList.refresh()
-        refreshing = false
-    }
-
-    val state = rememberPullRefreshState(refreshing, ::refresh)
-    Box(
-        modifier = modifier.pullRefresh(state)
+    Column(
+        modifier = modifier
     ) {
-        Column(
-            modifier = modifier
-        ) {
-            LazyColumn(modifier = Modifier.padding(all = 10.dp)) {
-                items(
-                    count = productList.itemCount,
-                    key = productList.itemKey(),
-                    contentType = productList.itemContentType()
-                ) { index ->
-                    var inCart = false
-                    val product = productList[index]
-                    if (product != null) {
-                        var show by remember { mutableStateOf(true) }
-                        val dismissState = rememberDismissState(
-                            confirmValueChange = {
-                                if (it == DismissValue.DismissedToStart ||
-                                    it == DismissValue.DismissedToEnd
-                                ) {
-                                    show = false
-                                    true
-                                } else false
-                            }, positionalThreshold = { 200.dp.toPx() }
+        LazyColumn(modifier = Modifier.padding(all = 10.dp)) {
+            items(
+                count = productList.itemCount,
+                key = productList.itemKey(),
+                contentType = productList.itemContentType()
+            ) { index ->
+                var inCart = false
+                val product = productList[index]
+                if (product != null) {
+                    var show by remember { mutableStateOf(true) }
+                    val dismissState = rememberDismissState(
+                        confirmValueChange = {
+                            if (it == DismissValue.DismissedToStart ||
+                                it == DismissValue.DismissedToEnd
+                            ) {
+                                show = false
+                                true
+                            } else false
+                        }, positionalThreshold = { 200.dp.toPx() }
+                    )
+                    if (Product.contains(productCartList, product.id)) {
+                        inCart = true
+                    }
+                    AnimatedVisibility(
+                        show, exit = fadeOut(spring())
+                    ) {
+                        SwipeToDelete(
+                            dismissState = dismissState,
+                            product = product,
+                            inCart = inCart,
+                            onClick = onClick,
+                            onClickViewProduct = onClickViewProduct,
+                            onClickBuyProduct = onClickBuyProduct,
+                            onClickViewCart = onClickViewCart
                         )
-                        if (Product.contains(productCartList, product.id)) {
-                            inCart = true
-                        }
-                        AnimatedVisibility(
-                            show, exit = fadeOut(spring())
-                        ) {
-                            SwipeToDelete(
-                                dismissState = dismissState,
-                                product = product,
-                                inCart = inCart,
-                                onClick = onClick,
-                                onClickViewProduct = onClickViewProduct,
-                                onClickBuyProduct = onClickBuyProduct,
-                                onClickViewCart = onClickViewCart
-                            )
-                        }
-                        LaunchedEffect(show) {
-                            if (!show) {
-                                delay(800)
-                                onSwipe(product)
-                            }
+                    }
+                    LaunchedEffect(show) {
+                        if (!show) {
+                            delay(800)
+                            onSwipe(product)
                         }
                     }
                 }
             }
-            PullRefreshIndicator(
-                refreshing, state,
-                Modifier
-                    .align(CenterHorizontally)
-                    .zIndex(100f)
-            )
         }
     }
 }
@@ -280,7 +257,7 @@ private fun ProductListItem(
     product: Product,
     modifier: Modifier = Modifier,
     onClickViewProduct: (id: Int) -> Unit,
-    onClickViewCart: (id: Int) -> Unit,
+    onClickViewCart: () -> Unit,
     onClickBuyProduct: (id: Int) -> Unit,
 ) {
     Row(
@@ -316,7 +293,7 @@ private fun ProductListItem(
                         modifier = Modifier
                             .width(130.dp)
                             .height(40.dp),
-                        onClick = { /*onClickViewCart(1)*/ }) {
+                        onClick = { onClickViewCart() }) {
                         Text(stringResource(R.string.go_to_cart))
                     }
                 } else {

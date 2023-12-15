@@ -1,9 +1,9 @@
-const data = require('./data.json'); // Load your data from data.json
 
 module.exports = (req, res, next) => {
   if (req.url.startsWith('/report') && req.method === 'GET') {
     const { startDate, endDate } = req.query; // Assuming you pass startDate and endDate as query parameters
-
+    delete require.cache[require.resolve('./data.json')];
+    const data = require('./data.json');
     const filteredOrders = data.orders.filter(order => {
       const orderDate = new Date(order.date);
       return orderDate >= new Date(startDate) && orderDate <= new Date(endDate);
@@ -14,6 +14,7 @@ module.exports = (req, res, next) => {
     });
 
     const revenueByProduct = {};
+    const products = {};
 
     ordersWithProducts.forEach(orderProd => {
       const productRevenue = orderProd.currentPrice * orderProd.count;
@@ -21,12 +22,15 @@ module.exports = (req, res, next) => {
       if (revenueByProduct[orderProd.productId]) {
         revenueByProduct[orderProd.productId] += productRevenue;
       } else {
+      products[orderProd.productId] = data.products.find(element=>
+        element.id === orderProd.productId
+      ).name
         revenueByProduct[orderProd.productId] = productRevenue;
       }
     });
 
     const result = Object.keys(revenueByProduct).map(productId => ({
-      productId: parseInt(productId),
+      name: products[productId],
       sum: revenueByProduct[productId],
     }));
 

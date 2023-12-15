@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,16 +26,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.common.AppViewModelProvider
@@ -55,24 +49,19 @@ fun OrderList(
     navController: NavController,
     viewModel: OrdersViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val lifecycle = lifecycleOwner.lifecycle
-    val currentState by rememberUpdatedState(lifecycle.currentState)
-
-    LaunchedEffect(currentState) {
-        if (currentState == Lifecycle.State.RESUMED) {
-            viewModel.update() // Update ViewModel when the page is resumed
-        }
+    LaunchedEffect(Unit) {
+        viewModel.update()
     }
-    val coroutineScope = rememberCoroutineScope()
-    val productListUiState = viewModel.orderListUiState
+    val orderListUiState = viewModel.orderListUiState
+//    val orderListUiState = viewModel.orderListUiState.collectAsLazyPagingItems()
     OrderList(
         update = { viewModel.update() },
-        orderList = productListUiState.orderList.toList(),
+        orderList = orderListUiState.orderList.toList(),
+//        orderList = orderListUiState,
         onClickViewOrder = { id: Int ->
             val route = Screen.OrderView.route.replace("{id}", id.toString())
             navController.navigate(route)
-        }
+        },
     )
 }
 
@@ -81,7 +70,7 @@ fun OrderList(
 fun OrderList(
     update: () -> Unit,
     orderList: List<Pair<Order, List<ProductFromOrder>>>,
-    onClickViewOrder: (id: Int) -> Unit
+    onClickViewOrder: (id: Int) -> Unit,
 ) {
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
@@ -112,7 +101,9 @@ fun OrderList(
                             .padding(top = 10.dp)
                             .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
                             .clickable {
-                                onClickViewOrder(order.id)
+                                if (order != null) {
+                                    onClickViewOrder(order.id)
+                                }
                             },
                     ) {
                         Column(
@@ -123,30 +114,24 @@ fun OrderList(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 10.dp, start = 10.dp),
-                                text = "ID: ${order.id}"
+                                text = "ID: ${order?.id}"
                             )
                             Text(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 10.dp, start = 10.dp),
-                                text = "Дата: ${convertDate(order.date)}"
+                                text = "Дата: ${order?.let { convertDate(it.date) }}"
                             )
                             Text(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 10.dp, start = 10.dp),
-                                text = "Цена: ${listProduct.sumOf { it.count * it.currentPrice }}"
+                                text = "Цена: ${listProduct?.sumOf { it.count * it.currentPrice }}"
                             )
                         }
                     }
                 }
             }
-            PullRefreshIndicator(
-                refreshing, state,
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .zIndex(100f)
-            )
         }
     }
 }

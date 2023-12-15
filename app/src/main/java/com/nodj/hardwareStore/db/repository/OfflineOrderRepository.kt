@@ -21,4 +21,11 @@ class OfflineOrderRepository(private val orderDao: OrderDao) : OrderRepository {
     override suspend fun update(order: Order) = orderDao.update(order)
 
     override suspend fun delete(order: Order) = orderDao.delete(order)
+    override suspend fun deleteAll() {
+        orderDao.deleteAll()
+    }
+
+    override suspend fun insertOrders(vararg order: Order) = orderDao.insertOrders(*order)
+    suspend fun insertOrders(orders: List<Order>) =
+        insertOrders(*orders.toTypedArray())
 }

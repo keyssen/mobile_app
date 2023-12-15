@@ -1,4 +1,4 @@
-package com.nodj.hardwareStore.ui.page
+package com.nodj.hardwareStore.ui.page.signIn
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
@@ -27,18 +27,16 @@ import androidx.navigation.NavController
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
-import com.nodj.hardwareStore.ui.navigation.changeLocation
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import com.nodj.hardwareStore.ui.page.profile.UserDetails
 import com.nodj.hardwareStore.ui.page.profile.UserUiState
-import com.nodj.hardwareStore.ui.page.profile.UserViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignIn(
     navController: NavController?,
-    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: SignInViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -46,7 +44,9 @@ fun SignIn(
     fun handleSignInButtonClick() {
         scope.launch {
             if (viewModel.SignIn(context)) {
-                navController?.let { changeLocation(it, Screen.Profile.route) }
+                if (navController != null) {
+                    changeLocationDeprecated(navController, Screen.Profile.route)
+                }
             }
         }
     }

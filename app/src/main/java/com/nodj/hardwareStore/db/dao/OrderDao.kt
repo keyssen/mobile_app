@@ -38,9 +38,15 @@ interface OrderDao {
     @Insert
     suspend fun insert(order: Order): Long
 
+    @Insert
+    suspend fun insertOrders(vararg order: Order)
+
     @Update
     suspend fun update(order: Order)
 
     @Delete
     suspend fun delete(order: Order)
+
+    @Query("DELETE FROM orders")
+    suspend fun deleteAll()
 }

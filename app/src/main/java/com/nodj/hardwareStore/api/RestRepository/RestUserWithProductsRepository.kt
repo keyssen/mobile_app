@@ -61,8 +61,13 @@ class RestUserWithProductsRepository(
     }
 
     override suspend fun insert(userWithProducts: UserWithProducts) {
-        service.createUserWithProduct(userWithProducts.toUserRemoteForInsert())
-        dbUserWithProductsRepository.insert(userWithProducts)
+        if (service.getByUserProduct(userWithProducts.productId, userWithProducts.userId).isEmpty()
+        ) {
+            dbUserWithProductsRepository.insert(
+                service.createUserWithProduct(userWithProducts.toUserRemoteForInsert())
+                    .toUserWithProducts()
+            )
+        }
     }
 
     suspend fun getByUserProductRemote(

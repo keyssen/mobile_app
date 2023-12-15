@@ -58,6 +58,7 @@ dependencies {
     // Core
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-rc01")
 
     // UI
     implementation("androidx.activity:activity-compose:1.7.2")
@@ -70,11 +71,13 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.3")
     // LiveData
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+
     // Coil
     implementation("io.coil-kt:coil:2.5.0")
 
     // DataStore | +
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+//    implementation("androidx.compose.material3:material3-android:1.2.0-beta01")
 
     // Room
     val room_version = "2.5.2"

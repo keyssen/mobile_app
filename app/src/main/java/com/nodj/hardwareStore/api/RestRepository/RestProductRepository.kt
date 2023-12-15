@@ -55,12 +55,15 @@ class RestProductRepository(
         service.getByCategoryProducts(categoryId).map { it.toProduct() }
 
     override suspend fun getAllByUserProduct(userId: Int): List<Product> {
-        return service.getByUserUserWithProducts(userId)
+        val listProduct = service.getByUserUserWithProducts(userId)
             .map { service.getProduct(it.productId).toProduct() }
+        return listProduct
     }
 
-    override fun getAllByUserProductFlow(userId: Int): Flow<List<Product>> =
-        dbProductRepository.getAllByUserProductFlow(userId)
+    override fun getAllByUserProductFlow(userId: Int): Flow<List<Product>> {
+        return dbProductRepository.getAllByUserProductFlow(userId)
+    }
+
 
     override fun getByUser(userId: Int): Flow<PagingData<AdvancedProduct>> {
         Log.d(RestProductRepository::class.simpleName, "Get getByUser")
@@ -85,8 +88,10 @@ class RestProductRepository(
         ).flow
     }
 
-    override fun getAllByUserFlow(userId: Int): Flow<List<AdvancedProduct>> =
-        dbProductRepository.getAllByUserFlow(userId)
+    override fun getAllByUserFlow(userId: Int): Flow<List<AdvancedProduct>> {
+        return dbProductRepository.getAllByUserFlow(userId)
+    }
+
 
     override suspend fun getAllByUser(userId: Int): List<AdvancedProduct> =
         service.getAllByUserAdvancedProducts(userId, "product").map { it.toAdvancedProduct() }

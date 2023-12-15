@@ -44,11 +44,19 @@ class RestUserRepository(
         ).flow
     }
 
-    override suspend fun getByName(name: String): User? = dbUserRepository.getByName(name)
+    override suspend fun getByName(name: String): User? {
+        return if (service.getUserByName(name).count() == 1) service.getUserByName(name).get(0)
+            .toUser() else null
+    }
 
-    override suspend fun getByNamePassword(name: String, password: String): User? =
-        dbUserRepository.getByNamePassword(name, password)
-
+    override suspend fun getByNamePassword(name: String, password: String): User? {
+        val user = service.getUserByNamePassword(name, password)?.get(0)?.toUser()
+        if (dbUserRepository.getByNamePassword(name, password) == null && user != null) {
+            dbUserRepository.insert(user)
+        }
+        return user
+    }
+    
     override suspend fun getByid(id: Int): User = service.getUser(id).toUser()
 
     override suspend fun insert(user: User) {
@@ -56,10 +64,10 @@ class RestUserRepository(
     }
 
     override suspend fun update(user: User) {
-        service.updateUser(user.id, user.toUserRemote()).toUser()
+        dbUserRepository.update(service.updateUser(user.id, user.toUserRemote()).toUser())
     }
 
     override suspend fun delete(user: User) {
-        service.deleteUser(user.id).toUser()
+        dbUserRepository.delete(service.deleteUser(user.id).toUser())
     }
 }

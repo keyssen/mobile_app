@@ -1,6 +1,6 @@
 package com.nodj.hardwareStore.db.repository.repositoryInterface
 
-import androidx.paging.PagingSource
+import androidx.paging.PagingData
 import androidx.room.Dao
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
@@ -12,7 +12,7 @@ interface ProductRepository {
 
     suspend fun getProduct(id: Int): Product
 
-    fun loadAllProductPaged(): PagingSource<Int, Product>
+    fun getAll(name: String): Flow<PagingData<Product>>
 
     suspend fun get(id: Int, userId: Int): AdvancedProduct
 

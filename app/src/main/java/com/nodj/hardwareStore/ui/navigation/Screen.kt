@@ -3,6 +3,7 @@ package com.nodj.hardwareStore.ui.navigation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
@@ -18,6 +19,9 @@ enum class Screen(
     val showInBottomBar: Boolean = true,
     @DrawableRes val iconId: Int? = null,
 ) {
+    Report(
+        "report", R.string.product_main_title, Icons.Filled.DateRange
+    ),
     ProductList(
         "product-list", R.string.product_main_title, Icons.Filled.Home
     ),
@@ -44,14 +48,15 @@ enum class Screen(
     ),
     Cart(
         "cart", R.string.product_cart, Icons.Filled.ShoppingCart
-    ),CartId(
+    ),
+    CartId(
         "cart/{id}", R.string.product_cart, Icons.Filled.ShoppingCart
     ),
     Orders(
         "orders", R.string.product_orders, iconId = R.drawable.list_check_icon
     ),
     Profile(
-    "profile", R.string.product_profile, Icons.Filled.Person
+        "profile", R.string.product_profile, Icons.Filled.Person
     ),
     SignIn(
         "sign-in", R.string.product_sign_in
@@ -67,7 +72,8 @@ enum class Screen(
             Catalog,
             Cart,
             Orders,
-            Profile
+            Profile,
+            Report
         )
 
         fun getItem(route: String): Screen? {
