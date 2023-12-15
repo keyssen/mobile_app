@@ -24,7 +24,7 @@ interface IncompleteProductRepository {
 
     suspend fun getAllByUser(userId: Int): List<AdvancedProduct>
 
-    fun loadAllProductPaged(): Flow<PagingData<Product>>
+    fun getAll(name: String): Flow<PagingData<Product>>
 
     suspend fun insert(product: Product)
 

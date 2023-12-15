@@ -13,7 +13,6 @@ import com.nodj.hardwareStore.db.remotekeys.dao.OfflineRemoteKeyRepository
 import com.nodj.hardwareStore.db.remotekeys.dao.RemoteKeyType
 import com.nodj.hardwareStore.db.remotekeys.dao.RemoteKeys
 import com.nodj.hardwareStore.db.repository.IncompleteOfflineProductRepository
-import com.nodj.hardwareStore.db.repository.OfflineUserWithProductsRepository
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -21,7 +20,6 @@ import java.io.IOException
 class ProductRemoteMediator(
     private val service: MyServerService,
     private val dbProductRepository: IncompleteOfflineProductRepository,
-    private val dbUserWithProductsRepository: OfflineUserWithProductsRepository,
     private val dbRemoteKeyRepository: OfflineRemoteKeyRepository,
     private val database: AppDatabase
 ) : RemoteMediator<Int, Product>() {
@@ -73,7 +71,6 @@ class ProductRemoteMediator(
                     )
                 }
                 dbRemoteKeyRepository.createRemoteKeys(keys)
-                dbUserWithProductsRepository.getAll()
                 dbProductRepository.insertProducts(products)
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)

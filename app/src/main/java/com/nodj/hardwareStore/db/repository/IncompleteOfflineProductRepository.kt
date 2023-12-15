@@ -36,21 +36,20 @@ class IncompleteOfflineProductRepository(private val productDao: ProductDao) :
     override suspend fun getAllByUser(userId: Int): List<AdvancedProduct> =
         productDao.getAllByUser(userId)
 
+    override fun getAll(name: String): Flow<PagingData<Product>> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getAllByUserProduct(userId: Int): List<Product> =
         productDao.getAllByUserProduct(userId)
 
     override fun getAllByUserProductFlow(userId: Int): Flow<List<Product>> =
         productDao.getAllByUserProductFlow(userId)
 
-    override fun loadAllProductPaged(): Flow<PagingData<Product>> = Pager(
-        config = PagingConfig(
-            pageSize = AppContainer.LIMIT,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = productDao::loadAllProductPaged
-    ).flow
+    fun loadAllProductPaged(): PagingSource<Int, Product> = productDao.loadAllProductPaged()
 
-    fun getAllProductsPagingSource(): PagingSource<Int, Product> = productDao.loadAllProductPaged()
+    fun loadAllProductPaged(name: String): PagingSource<Int, Product> =
+        productDao.loadAllProductPaged(name)
 
     override suspend fun insert(product: Product) = productDao.insert(product)
 

@@ -40,6 +40,7 @@ import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -58,6 +59,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
@@ -75,10 +77,15 @@ fun ProductList(
     viewModel: ProductListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val productListUiState = viewModel.productListUiState.collectAsLazyPagingItems()
+    val productListUiState = viewModel.productListUiState.productList.collectAsLazyPagingItems()
     val productListCartUiState = viewModel.productListCartUiState
+    val searchPattern = LiveStore.searchRequest.observeAsState("")
     LaunchedEffect(Unit) {
         viewModel.update()
+        viewModel.refresh()
+    }
+    LaunchedEffect(searchPattern.value) {
+        viewModel.refresh()
     }
     Scaffold(
         topBar = {},

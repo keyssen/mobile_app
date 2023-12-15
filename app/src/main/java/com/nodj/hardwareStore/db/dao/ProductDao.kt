@@ -17,6 +17,11 @@ interface ProductDao {
     @Query("select * from products order by name collate nocase asc")
     fun loadAllProductPaged(): PagingSource<Int, Product>
 
+    @Query(
+        "select * from products WHERE name LIKE :name order by name collate nocase asc"
+    )
+    fun loadAllProductPaged(name: String): PagingSource<Int, Product>
+
     @Query("select * from products where product_id = :id")
     suspend fun getProduct(id: Int): Product
 

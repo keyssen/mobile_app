@@ -7,12 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
 import com.nodj.hardwareStore.db.repository.repositoryInterface.IncompleteProductRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.UserWithProductsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 class ProductListViewModel(
@@ -21,6 +23,8 @@ class ProductListViewModel(
 ) : ViewModel() {
 
     var productListCartUiState by mutableStateOf(ProductListCartUiState())
+        private set
+    var productListUiState by mutableStateOf(ProductListUiState())
         private set
 
     fun update() {
@@ -32,7 +36,11 @@ class ProductListViewModel(
         }
     }
 
-    val productListUiState: Flow<PagingData<Product>> = productRepository.loadAllProductPaged()
+    fun refresh() {
+        val name = "%${LiveStore.searchRequest.value}%"
+        val pagingSource = productRepository.getAll(name)
+        productListUiState = ProductListUiState(pagingSource.cachedIn(viewModelScope))
+    }
 
     suspend fun deleteProduct(product: Product) {
         productRepository.delete(product)
@@ -49,3 +57,5 @@ class ProductListViewModel(
 }
 
 data class ProductListCartUiState(val productListCart: List<Product> = listOf())
+
+data class ProductListUiState(val productList: Flow<PagingData<Product>> = emptyFlow())

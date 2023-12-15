@@ -28,11 +28,8 @@ class RestProductRepository(
     private val dbRemoteKeyRepository: OfflineRemoteKeyRepository,
     private val database: AppDatabase
 ) : IncompleteProductRepository {
-    override fun loadAllProductPaged(): Flow<PagingData<Product>> {
-        Log.d(RestProductRepository::class.simpleName, "Get products")
 
-        val pagingSourceFactory = { dbProductRepository.getAllProductsPagingSource() }
-
+    override fun getAll(name: String): Flow<PagingData<Product>> {
         @OptIn(ExperimentalPagingApi::class)
         return Pager(
             config = PagingConfig(
@@ -40,14 +37,18 @@ class RestProductRepository(
                 enablePlaceholders = false
             ),
             remoteMediator = ProductRemoteMediator(
-                service,
-                dbProductRepository,
-                dbUserWithProductsRepository,
-                dbRemoteKeyRepository,
-                database,
+                service = service,
+                dbProductRepository = dbProductRepository,
+                dbRemoteKeyRepository = dbRemoteKeyRepository,
+                database = database,
             ),
-            pagingSourceFactory = pagingSourceFactory
-        ).flow
+        ) {
+            if (name.isEmpty()) {
+                dbProductRepository.loadAllProductPaged()
+            } else {
+                dbProductRepository.loadAllProductPaged(name)
+            }
+        }.flow
     }
 
     override suspend fun getProduct(id: Int): Product = service.getProduct(id).toProduct()
