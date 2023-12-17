@@ -4,29 +4,37 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.common.MyViewModel
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.repository.repositoryInterface.ProductRepository
-import kotlinx.coroutines.launch
 
 class ProductEditViewModel(
     savedStateHandle: SavedStateHandle,
     private val productRepository: ProductRepository,
 
-    ) : ViewModel() {
+    ) : MyViewModel() {
 
     var productUiState by mutableStateOf(ProductUiState())
         private set
 
     private val productid: Int = checkNotNull(savedStateHandle["id"])
 
+    var error by mutableStateOf(0)
+        private set
+
     init {
-        viewModelScope.launch {
-            if (productid > 0) {
-                productUiState = productRepository.getProduct(productid)
-                    .toUiState(true)
-            }
+        if (productid > 0) {
+            runInScope(
+                actionSuccess = {
+                    productUiState = productRepository.getProduct(productid)
+                        .toUiState(true)
+                },
+                actionError = {
+                    productUiState = ProductUiState()
+                    error = R.string.error_404
+                }
+            )
         }
     }
 
@@ -40,9 +48,24 @@ class ProductEditViewModel(
     suspend fun saveProduct() {
         if (validateInput()) {
             if (productid > 0) {
-                productRepository.update(productUiState.productDetails.toProduct(productid))
+                runInScope(
+                    actionSuccess = {
+                        productRepository.update(productUiState.productDetails.toProduct(productid))
+                    },
+                    actionError = {
+                        error = R.string.error_404
+                    }
+                )
+
             } else {
-                productRepository.insert(productUiState.productDetails.toProduct())
+                runInScope(
+                    actionSuccess = {
+                        productRepository.insert(productUiState.productDetails.toProduct())
+                    },
+                    actionError = {
+                        error = R.string.error_404
+                    }
+                )
             }
         }
     }
@@ -59,7 +82,7 @@ class ProductEditViewModel(
 
 data class ProductUiState(
     val productDetails: ProductDetails = ProductDetails(),
-    val isEntryValid: Boolean = false
+    val isEntryValid: Boolean = false,
 )
 
 data class ProductDetails(

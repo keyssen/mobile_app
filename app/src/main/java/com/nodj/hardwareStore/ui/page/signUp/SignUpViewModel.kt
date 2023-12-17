@@ -3,18 +3,25 @@ package com.nodj.hardwareStore.ui.page.signUp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.common.MyViewModel
 import com.nodj.hardwareStore.db.repository.repositoryInterface.UserRepository
-import com.nodj.hardwareStore.ui.page.profile.UserDetails
-import com.nodj.hardwareStore.ui.page.profile.UserUiState
-import com.nodj.hardwareStore.ui.page.profile.toUser
+import com.nodj.hardwareStore.ui.page.signIn.UserDetails
+import com.nodj.hardwareStore.ui.page.signIn.UserUiState
+import com.nodj.hardwareStore.ui.page.signIn.toUser
 
 class SignUpViewModel(
     private val userRepository: UserRepository,
 
-    ) : ViewModel() {
+    ) : MyViewModel() {
 
     var userUiState by mutableStateOf(UserUiState())
+        private set
+
+    var error by mutableStateOf(0)
+        private set
+
+    var signUp by mutableStateOf(false)
         private set
 
     fun updateUiState(userDetails: UserDetails) {
@@ -24,21 +31,34 @@ class SignUpViewModel(
         )
     }
 
-    suspend fun signUp(): Boolean {
+    fun clearError() {
+        error = 0
+    }
+
+    suspend fun signUp() {
         if (validateInput()) {
-            if (userRepository.getByName(userUiState.userDetails.name) === null) {
-                userRepository.insert(userUiState.userDetails.toUser())
-                userUiState = UserUiState()
-                return true;
-            } else {
-                userUiState = UserUiState(
-                    userDetails = userUiState.userDetails,
-                    errorMessage = "Пользователь с таким логином уже существует",
-                    isEntryValid = false
-                )
-            }
+            runInScope(
+                actionSuccess = {
+                    if (userRepository.getByName(userUiState.userDetails.name) === null) {
+                        userRepository.insert(userUiState.userDetails.toUser())
+                        userUiState = UserUiState()
+                        signUp = true;
+                    } else {
+                        signUp = false;
+                        error = R.string.error_registration
+                        userUiState = UserUiState(
+                            userDetails = userUiState.userDetails,
+                            errorMessage = "",
+                            isEntryValid = false
+                        )
+                    }
+                },
+                actionError = {
+                    signUp = false
+                    error = R.string.error_404
+                }
+            )
         }
-        return false
     }
 
     private fun validateInput(uiState: UserDetails = userUiState.userDetails): Boolean {

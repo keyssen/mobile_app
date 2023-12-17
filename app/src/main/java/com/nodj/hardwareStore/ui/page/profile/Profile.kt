@@ -23,9 +23,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.nodj.hardwareStore.LiveStore
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.User
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
+import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import kotlinx.coroutines.launch
 
@@ -42,14 +46,29 @@ fun Profile(
     fun handleExitClick() {
         scope.launch {
             viewModel.Exit(context)
+            if (navController != null) {
+                navController.navigate(Screen.SignIn.route)
+            }
         }
     }
-    Profile(
-        navController = navController, user = user,
-        onExitClick = {
-            handleExitClick()
-        },
-    )
+    when (viewModel.apiStatus) {
+        ApiStatus.DONE -> {
+            navController?.let {
+                Profile(
+                    navController = navController, user = user,
+                    onExitClick = {
+                        handleExitClick()
+                    },
+                )
+            }
+        }
+
+        ApiStatus.LOADING -> LoadingPlaceholder()
+        else -> ErrorPlaceholder(
+            message = viewModel.apiError,
+            onBack = { navController?.popBackStack() }
+        )
+    }
 }
 
 
@@ -69,33 +88,29 @@ fun Profile(
             text = "Имя пользователя",
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        user?.value?.let {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 30.dp),
-                value = it.name,
-                onValueChange = { },
-                shape = RoundedCornerShape(15.dp),
-                placeholder = { Text("Имя") },
-            )
-        }
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 30.dp),
+            value = user?.value?.name ?: "",
+            onValueChange = { },
+            shape = RoundedCornerShape(15.dp),
+            placeholder = { Text("Имя") },
+        )
         Text(
             text = "Пароль пользователя",
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        user.value?.let {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 30.dp),
-                value = it.password,
-                onValueChange = {},
-                shape = RoundedCornerShape(15.dp),
-                placeholder = { Text("Пароль") },
-                singleLine = true
-            )
-        }
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 30.dp),
+            value = user?.value?.password ?: "",
+            onValueChange = {},
+            shape = RoundedCornerShape(15.dp),
+            placeholder = { Text("Пароль") },
+            singleLine = true
+        )
         if (user?.value?.id == 0) {
             Text(
                 text = "Вход",

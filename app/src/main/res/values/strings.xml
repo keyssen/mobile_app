@@ -20,5 +20,9 @@
     <string name="save">Сохранить</string>
     <string name="product_buy">Купить</string>
     <string name="go_to_cart">В коризину</string>
-    <string name="report">Отчёт</string>
+    <string name="error_404">Не удалось установить соединение</string>
+    <string name="error_authentication">Неверное имя пользователя или пароль</string>
+    <string name="error_registration">Пользователь с таким логином уже существует</string>
+    <string name="back">Назад</string>
+    <string name="loading">Загрузка…</string>
 </resources>

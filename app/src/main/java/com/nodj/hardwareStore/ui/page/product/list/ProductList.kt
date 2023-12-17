@@ -1,6 +1,7 @@
 package com.nodj.hardwareStore.ui.page.product.list
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
@@ -49,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -66,6 +68,7 @@ import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import kotlinx.coroutines.delay
@@ -81,11 +84,17 @@ fun ProductList(
     val productListUiState = viewModel.productListUiState.productList.collectAsLazyPagingItems()
     val searchPattern = LiveStore.searchRequest.observeAsState("")
     val user = LiveStore.user.observeAsState()
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.refresh()
     }
     LaunchedEffect(searchPattern.value) {
         viewModel.refresh()
+    }
+    if (viewModel.error != 0) {
+        Log.d("viewModel.error", viewModel.error.toString())
+        showToast(context, stringResource(viewModel.error))
+        viewModel.clearError()
     }
     Scaffold(
         topBar = {},
@@ -108,6 +117,7 @@ fun ProductList(
                 .fillMaxSize(),
             productList = productListUiState,
             onClick = { id: Int ->
+                Log.d("id", id.toString())
                 val route = Screen.ProductEdit.route.replace("{id}", id.toString())
                 navController.navigate(route)
             },
@@ -177,7 +187,6 @@ fun DismissBackground(dismissState: DismissState) {
         null -> Color.Transparent
     }
     val direction = dismissState.dismissDirection
-
     Row(
         modifier = Modifier
             .fillMaxSize()

@@ -20,12 +20,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,9 +34,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.LiveStore
 import com.nodj.hardwareStore.common.AppViewModelProvider
-import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.db.models.helperModels.AdvancedProduct
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.page.product.productCarts.ProductForCart
 import kotlinx.coroutines.launch
@@ -49,8 +50,13 @@ fun Cart(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val productListCartUiState = viewModel.productListCartUiState
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.update()
+    }
+    if (viewModel.error != 0) {
+        showToast(context, stringResource(viewModel.error))
+        viewModel.clearError()
     }
     Cart(
         productListCart = productListCartUiState.productListCart,

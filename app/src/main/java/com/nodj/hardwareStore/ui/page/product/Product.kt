@@ -22,10 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.page.product.edit.CategoryDropDownViewModel
 import com.nodj.hardwareStore.ui.page.product.edit.CategoryUiState
 import com.nodj.hardwareStore.ui.page.product.edit.ProductUiState
@@ -38,10 +41,27 @@ fun Product(
     categoryViewModel: CategoryDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     categoryViewModel.setCurrentCategory(viewModel.productUiState.productDetails.categoryId)
-    Product(
-        productUiState = viewModel.productUiState,
-        categoryUiState = categoryViewModel.categoryUiState,
-    )
+    if (categoryViewModel.error != 0) {
+        ErrorPlaceholder(
+            message = stringResource(categoryViewModel.error),
+            onBack = { navController.popBackStack() }
+        )
+        return
+    }
+    when (viewModel.apiStatus) {
+        ApiStatus.DONE -> {
+            Product(
+                productUiState = viewModel.productUiState,
+                categoryUiState = categoryViewModel.categoryUiState,
+            )
+        }
+
+        ApiStatus.LOADING -> LoadingPlaceholder()
+        else -> ErrorPlaceholder(
+            message = viewModel.apiError,
+            onBack = { navController.popBackStack() }
+        )
+    }
 }
 
 

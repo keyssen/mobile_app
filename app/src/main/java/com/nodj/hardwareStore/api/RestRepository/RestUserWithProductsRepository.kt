@@ -38,12 +38,7 @@ class RestUserWithProductsRepository(
         productId: Int,
         userId: Int
     ): UserWithProductsRemote {
-        try {
-            val response = service.getByUserProduct(userId, productId).first()
-            return response
-        } catch (e: Exception) {
-            return UserWithProducts.getEmpty().toUserRemoteForInsert()
-        }
+        return service.getByUserProduct(userId, productId).first()
     }
 
     override suspend fun update(userWithProducts: UserWithProducts) {

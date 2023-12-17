@@ -4,18 +4,24 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.common.MyViewModel
 import com.nodj.hardwareStore.db.datastore.PreferencesStore
+import com.nodj.hardwareStore.db.models.User
+import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.db.repository.repositoryInterface.UserRepository
-import com.nodj.hardwareStore.ui.page.profile.UserDetails
-import com.nodj.hardwareStore.ui.page.profile.UserUiState
 
 class SignInViewModel(
     private val userRepository: UserRepository,
-
-    ) : ViewModel() {
+) : MyViewModel() {
 
     var userUiState by mutableStateOf(UserUiState())
+        private set
+
+    var error by mutableStateOf(0)
+        private set
+
+    var signIn by mutableStateOf(false)
         private set
 
     fun updateUiState(userDetails: UserDetails) {
@@ -25,20 +31,34 @@ class SignInViewModel(
         )
     }
 
-    suspend fun SignIn(context: Context): Boolean {
+    fun clearError() {
+        error = 0
+    }
+
+    suspend fun SignIn(context: Context) {
         if (validateInput()) {
-            val user = userRepository.getByNamePassword(
-                userUiState.userDetails.name,
-                userUiState.userDetails.password
+            runInScope(
+                actionSuccess = {
+                    val user = userRepository.getByNamePassword(
+                        userUiState.userDetails.name,
+                        userUiState.userDetails.password
+                    )
+                    if (user != null) {
+                        val store = PreferencesStore(context)
+                        store.setUsername(user.name)
+                        signIn = true
+                        userUiState = UserUiState()
+                    } else {
+                        signIn = false
+                        error = R.string.error_authentication
+                    }
+                },
+                actionError = {
+                    signIn = false
+                    error = R.string.error_404
+                }
             )
-            if (user != null) {
-                val store = PreferencesStore(context)
-                store.setUsername(user.name)
-                userUiState = UserUiState()
-                return true
-            }
         }
-        return false
     }
 
     private fun validateInput(uiState: UserDetails = userUiState.userDetails): Boolean {
@@ -49,3 +69,35 @@ class SignInViewModel(
         }
     }
 }
+
+data class UserUiState(
+    val userDetails: UserDetails = UserDetails(),
+    val isEntryValid: Boolean = false,
+    val errorMessage: String = ""
+)
+
+data class UserDetails(
+    val id: Int = 0,
+    val name: String = "",
+    val role: UserRole = UserRole.USER,
+    val password: String = "",
+)
+
+fun UserDetails.toUser(id: Int = 0): User = User(
+    id = id,
+    name = name,
+    role = role,
+    password = password
+)
+
+fun User.toDetails(): UserDetails = UserDetails(
+    id = id,
+    name = name,
+    role = role,
+    password = password
+)
+
+fun User.toUiState(isEntryValid: Boolean = false): UserUiState = UserUiState(
+    userDetails = this.toDetails(),
+    isEntryValid = isEntryValid
+)

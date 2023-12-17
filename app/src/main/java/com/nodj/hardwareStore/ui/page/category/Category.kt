@@ -12,7 +12,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -21,20 +20,34 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.page.category.edit.CategoryEditViewModel
 import com.nodj.hardwareStore.ui.page.category.edit.CategoryUiState
 import com.nodj.hardwareStore.ui.page.category.edit.toUiState
+import com.nodj.hardwareStore.ui.page.product.Product
 
 @Composable
 fun Category(
+    navController: NavController,
     viewModel: CategoryEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    Category(
-        categoryUiState = viewModel.categoryUiState,
-    )
+    when (viewModel.apiStatus) {
+        ApiStatus.DONE -> {
+            Category(
+                categoryUiState = viewModel.categoryUiState,
+            )
+        }
+        ApiStatus.LOADING -> LoadingPlaceholder()
+        else -> ErrorPlaceholder(
+            message = stringResource(viewModel.error),
+            onBack = { navController.popBackStack() }
+        )
+    }
 }
 
 

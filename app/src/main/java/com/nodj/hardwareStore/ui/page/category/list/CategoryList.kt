@@ -31,6 +31,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,6 +46,7 @@ import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.models.UserRole
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import kotlinx.coroutines.launch
 
@@ -56,6 +59,10 @@ fun CategoryList(
     val coroutineScope = rememberCoroutineScope()
     val categoryListUiState = viewModel.categoryListUiState.collectAsLazyPagingItems()
     val user = LiveStore.user.observeAsState()
+    val context = LocalContext.current
+    if (viewModel.error != 0) {
+        showToast(context, stringResource(viewModel.error))
+    }
     Scaffold(
         topBar = {},
         floatingActionButton = {

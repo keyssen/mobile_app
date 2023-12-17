@@ -5,9 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.LiveStore
+import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.common.MyViewModel
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
@@ -21,11 +22,14 @@ class OrderViewModel(
     private val productRepository: ProductRepository,
     private val orderRepository: OrderRepository,
     private val userWithProductsRepository: UserWithProductsRepository
-) : ViewModel() {
+) : MyViewModel() {
 
     private val orderId: Int = checkNotNull(savedStateHandle["id"])
 
     var orderUiState by mutableStateOf(OrderUiState())
+        private set
+
+    var error by mutableStateOf(0)
         private set
 
     var productListCart by mutableStateOf(ProductListCart())
@@ -34,16 +38,36 @@ class OrderViewModel(
     fun update() {
         viewModelScope.launch {
             if (orderId > 0) {
-                orderUiState = OrderUiState(orderRepository.getByOrder(orderId))
-                productListCart =
-                    ProductListCart(productRepository.getAllByUserProduct(LiveStore.getUserId()))
+                runInScope(
+                    actionSuccess = {
+                        orderUiState = OrderUiState(orderRepository.getByOrder(orderId))
+                        productListCart =
+                            ProductListCart(productRepository.getAllByUserProduct(LiveStore.getUserId()))
+                    },
+                    actionError = {
+                        error = R.string.error_404
+                    }
+                )
             }
         }
     }
 
     suspend fun addToCartProduct(productid: Int) {
-        userWithProductsRepository.insert(UserWithProducts(LiveStore.getUserId(), productid, 1))
-        update()
+        runInScope(
+            actionSuccess = {
+                userWithProductsRepository.insert(
+                    UserWithProducts(
+                        LiveStore.getUserId(),
+                        productid,
+                        1
+                    )
+                )
+                update()
+            },
+            actionError = {
+                error = R.string.error_404
+            }
+        )
     }
 }
 

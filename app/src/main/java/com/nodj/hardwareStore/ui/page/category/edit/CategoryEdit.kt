@@ -20,8 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
+import com.nodj.hardwareStore.ui.page.category.Category
 import kotlinx.coroutines.launch
 
 @Composable
@@ -30,16 +34,25 @@ fun CategoryEdit(
     viewModel: CategoryEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
-    CategoryEdit(
-        categoryUiState = viewModel.categoryUiState,
-        onClick = {
-            coroutineScope.launch {
-                viewModel.saveCategory()
-                navController.popBackStack()
-            }
-        },
-        onUpdate = viewModel::updateUiState,
-    )
+    when (viewModel.apiStatus) {
+        ApiStatus.DONE -> {
+            CategoryEdit(
+                categoryUiState = viewModel.categoryUiState,
+                onClick = {
+                    coroutineScope.launch {
+                        viewModel.saveCategory()
+                        navController.popBackStack()
+                    }
+                },
+                onUpdate = viewModel::updateUiState,
+            )
+        }
+        ApiStatus.LOADING -> LoadingPlaceholder()
+        else -> ErrorPlaceholder(
+            message = stringResource(viewModel.error),
+            onBack = { navController.popBackStack() }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

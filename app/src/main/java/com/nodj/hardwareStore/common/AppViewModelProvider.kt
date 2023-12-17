@@ -33,7 +33,6 @@ object AppViewModelProvider {
             ProductListInCartViewModel(
                 shopApplication().container.restProductRepository,
                 shopApplication().container.restUserWithProductsRepository,
-                shopApplication().container.restOrderWithProductsRepository,
                 shopApplication().container.restOrderRepository,
             )
         }

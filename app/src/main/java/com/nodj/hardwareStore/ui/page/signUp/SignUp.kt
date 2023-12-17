@@ -27,15 +27,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.UserRole
+import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
+import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
-import com.nodj.hardwareStore.ui.page.profile.UserDetails
-import com.nodj.hardwareStore.ui.page.profile.UserUiState
+import com.nodj.hardwareStore.ui.page.product.Product
+import com.nodj.hardwareStore.ui.page.signIn.UserDetails
+import com.nodj.hardwareStore.ui.page.signIn.UserUiState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,21 +53,35 @@ fun SignUp(
 ) {
     val scope = rememberCoroutineScope()
     val userUiState = viewModel.userUiState
+    val context = LocalContext.current
     fun handleSignuPButtonClick() {
         scope.launch {
-            if (viewModel.signUp()) {
-                changeLocationDeprecated(navController, Screen.SignIn.route)
-            }
-
+            viewModel.signUp()
         }
     }
-    SignUp(
-        navController, userUiState,
-        onUpdate = viewModel::updateUiState,
-        onSignUpClick = {
-            handleSignuPButtonClick()
-        },
-    )
+    if (viewModel.signUp) {
+        changeLocationDeprecated(navController, Screen.SignIn.route)
+    }
+    if (viewModel.error != 0) {
+        showToast(context, stringResource(viewModel.error))
+        viewModel.clearError()
+    }
+    when (viewModel.apiStatus) {
+        ApiStatus.DONE -> {
+            SignUp(
+                navController, userUiState,
+                onUpdate = viewModel::updateUiState,
+                onSignUpClick = {
+                    handleSignuPButtonClick()
+                },
+            )
+        }
+        ApiStatus.LOADING -> LoadingPlaceholder()
+        else -> ErrorPlaceholder(
+            message = viewModel.apiError,
+            onBack = { navController.popBackStack() }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,10 +108,6 @@ fun SignUp(
             onValueChange = { onUpdate(userUiState.userDetails.copy(name = it)) },
             shape = RoundedCornerShape(15.dp),
             placeholder = { Text("Логин") },
-        )
-        Text(
-            text = userUiState.errorMessage,
-            color = Color.Red
         )
         Text(
             text = "Введите пароль",

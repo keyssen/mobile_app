@@ -33,11 +33,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.navigation.Screen
+import com.nodj.hardwareStore.ui.page.category.Category
 import com.nodj.hardwareStore.ui.page.orders.orderContent.OrderViewModel
 import kotlinx.coroutines.launch
 
@@ -53,23 +57,32 @@ fun OrderContent(
     }
     val productList = viewModel.orderUiState.productList
     val productListCart = viewModel.productListCart.productListCart
-    OrderContent(
-        productList = productList,
-        productListCart = productListCart,
-        onClickViewProduct = { id: Int ->
-            val route = Screen.Product.route.replace("{id}", id.toString())
-            navController.navigate(route)
-        },
-        onClickBuyProduct = { id: Int ->
-            coroutineScope.launch {
-                viewModel.addToCartProduct(id)
-            }
-        },
-        onClickViewCart = {
-            val route = Screen.Cart.route
-            navController.navigate(route)
+    when (viewModel.apiStatus) {
+        ApiStatus.DONE -> {
+            OrderContent(
+                productList = productList,
+                productListCart = productListCart,
+                onClickViewProduct = { id: Int ->
+                    val route = Screen.Product.route.replace("{id}", id.toString())
+                    navController.navigate(route)
+                },
+                onClickBuyProduct = { id: Int ->
+                    coroutineScope.launch {
+                        viewModel.addToCartProduct(id)
+                    }
+                },
+                onClickViewCart = {
+                    val route = Screen.Cart.route
+                    navController.navigate(route)
+                }
+            )
         }
-    )
+        ApiStatus.LOADING -> LoadingPlaceholder()
+        else -> ErrorPlaceholder(
+            message = stringResource(viewModel.error),
+            onBack = { navController.popBackStack() }
+        )
+    }
 }
 
 

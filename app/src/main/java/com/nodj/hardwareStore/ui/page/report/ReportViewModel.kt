@@ -3,35 +3,45 @@ package com.nodj.hardwareStore.ui.page.report
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.nodj.hardwareStore.LiveStore
+import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.api.MyServerService
 import com.nodj.hardwareStore.api.model.ReportRemote
-import kotlinx.coroutines.launch
+import com.nodj.hardwareStore.common.MyViewModel
 
 class ReportViewModel(
     private val service: MyServerService,
-) : ViewModel() {
+) : MyViewModel() {
 
     var reportListUiState by mutableStateOf(ReportListUiState())
+        private set
+
+    var error by mutableStateOf(0)
         private set
 
     var dateState by mutableStateOf(DateState())
         private set
 
+    fun clearError() {
+        error = 0
+    }
 
     fun getReport() {
-        viewModelScope.launch {
-            if (LiveStore.getUserId() != 0 && validateInput(dateState)) {
-                reportListUiState =
-                    ReportListUiState(
-                        service.getReport(
-                            dateState.startDate.toString(),
-                            dateState.endDate.toString()
+        if (LiveStore.getUserId() != 0 && validateInput(dateState)) {
+            runInScope(
+                actionSuccess = {
+                    reportListUiState =
+                        ReportListUiState(
+                            service.getReport(
+                                dateState.startDate.toString(),
+                                dateState.endDate.toString()
+                            )
                         )
-                    )
-            }
+                },
+                actionError = {
+                    error = R.string.error_404
+                }
+            )
         }
     }
 

@@ -29,6 +29,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,6 +39,7 @@ import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Order
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.page.orders.OrdersViewModel
 import kotlinx.coroutines.launch
@@ -49,10 +52,15 @@ fun OrderList(
     navController: NavController,
     viewModel: OrdersViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val orderListUiState = viewModel.orderListUiState
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.update()
     }
-    val orderListUiState = viewModel.orderListUiState
+    if (viewModel.error != 0) {
+        showToast(context, stringResource(viewModel.error))
+        viewModel.clearError()
+    }
     OrderList(
         update = { viewModel.update() },
         orderList = orderListUiState.orderList.toList(),

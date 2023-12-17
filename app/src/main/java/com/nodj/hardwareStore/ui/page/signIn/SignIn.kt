@@ -16,21 +16,23 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
+import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
-import com.nodj.hardwareStore.ui.page.profile.UserDetails
-import com.nodj.hardwareStore.ui.page.profile.UserUiState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,20 +46,35 @@ fun SignIn(
     val userUiState = viewModel.userUiState
     fun handleSignInButtonClick() {
         scope.launch {
-            if (viewModel.SignIn(context)) {
-                if (navController != null) {
-                    changeLocationDeprecated(navController, Screen.Profile.route)
-                }
-            }
+            viewModel.SignIn(context)
         }
     }
-    navController?.let {
-        SignIn(
-            it, userUiState,
-            onUpdate = viewModel::updateUiState,
-            onSignInClick = {
-                handleSignInButtonClick()
-            },
+    if (viewModel.error != 0) {
+        showToast(context, stringResource(viewModel.error))
+        viewModel.clearError()
+    }
+    if (viewModel.signIn) {
+        if (navController != null) {
+            changeLocationDeprecated(navController, Screen.Profile.route)
+        }
+    }
+    when (viewModel.apiStatus) {
+        ApiStatus.DONE -> {
+            navController?.let {
+                SignIn(
+                    it, userUiState,
+                    onUpdate = viewModel::updateUiState,
+                    onSignInClick = {
+                        handleSignInButtonClick()
+                    },
+                )
+            }
+        }
+
+        ApiStatus.LOADING -> LoadingPlaceholder()
+        else -> ErrorPlaceholder(
+            message = viewModel.apiError,
+            onBack = { navController?.popBackStack() }
         )
     }
 }

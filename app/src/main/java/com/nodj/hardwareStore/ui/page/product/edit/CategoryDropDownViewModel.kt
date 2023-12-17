@@ -1,27 +1,36 @@
 package com.nodj.hardwareStore.ui.page.product.edit
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.nodj.hardwareStore.R
+import com.nodj.hardwareStore.common.MyViewModel
 import com.nodj.hardwareStore.db.models.Category
 import com.nodj.hardwareStore.db.repository.repositoryInterface.CategoryRepository
-import kotlinx.coroutines.launch
 
 class CategoryDropDownViewModel(
     private val categoryRepository: CategoryRepository
-) : ViewModel() {
+) : MyViewModel() {
     var categoriesListUiState by mutableStateOf(CategorysListUiState())
         private set
 
     var categoryUiState by mutableStateOf(CategoryUiState())
         private set
 
+    var error by mutableStateOf(0)
+        private set
+
     init {
-        viewModelScope.launch {
-            categoriesListUiState = CategorysListUiState(categoryRepository.getAll())
-        }
+        runInScope(
+            actionSuccess = {
+                categoriesListUiState = CategorysListUiState(categoryRepository.getAll())
+            },
+            actionError = {
+                categoriesListUiState = CategorysListUiState()
+                error = R.string.error_404
+            }
+        )
     }
 
     fun setCurrentCategory(categoryId: Int) {

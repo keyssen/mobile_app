@@ -184,7 +184,7 @@ fun Navhost(
             Screen.Category.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            Category()
+            Category(navController)
         }
         composable(
             Screen.Product.route,
