@@ -76,9 +76,7 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            UserViewModel(
-                shopApplication().container.restUserRepository
-            )
+            UserViewModel()
         }
         initializer {
             SignInViewModel(

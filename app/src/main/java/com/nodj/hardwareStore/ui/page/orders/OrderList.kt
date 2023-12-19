@@ -35,10 +35,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Order
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.ui.MyApplicationTheme
+import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.page.orders.OrdersViewModel
@@ -61,14 +63,18 @@ fun OrderList(
         showToast(context, stringResource(viewModel.error))
         viewModel.clearError()
     }
-    OrderList(
-        update = { viewModel.update() },
-        orderList = orderListUiState.orderList.toList(),
-        onClickViewOrder = { id: Int ->
-            val route = Screen.Order.route.replace("{id}", id.toString())
-            navController.navigate(route)
-        },
-    )
+    if (viewModel.apiStatus == ApiStatus.LOADING) {
+        LoadingPlaceholder()
+    } else {
+        OrderList(
+            update = { viewModel.update() },
+            orderList = orderListUiState.orderList.toList(),
+            onClickViewOrder = { id: Int ->
+                val route = Screen.Order.route.replace("{id}", id.toString())
+                navController.navigate(route)
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)

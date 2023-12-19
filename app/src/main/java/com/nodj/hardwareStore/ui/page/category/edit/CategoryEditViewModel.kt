@@ -24,16 +24,18 @@ class CategoryEditViewModel(
     private val categoryid: Int = checkNotNull(savedStateHandle["id"])
 
     init {
-        runInScope(
-            actionSuccess = {
-                categoryUiState = categoryRepository.getByid(categoryid)
-                    .toUiState(true)
-            },
-            actionError = {
-                categoryUiState = CategoryUiState()
-                error = R.string.error_404
-            }
-        )
+        if (categoryid > 0) {
+            runInScope(
+                actionSuccess = {
+                    categoryUiState = categoryRepository.getByid(categoryid)
+                        .toUiState(true)
+                },
+                actionError = {
+                    categoryUiState = CategoryUiState()
+                    error = R.string.error_404
+                }
+            )
+        }
     }
 
     fun updateUiState(categoryDetails: CategoryDetails) {

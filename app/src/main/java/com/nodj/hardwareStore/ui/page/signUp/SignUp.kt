@@ -54,6 +54,7 @@ fun SignUp(
     val scope = rememberCoroutineScope()
     val userUiState = viewModel.userUiState
     val context = LocalContext.current
+    val roleList = enumValues<UserRole>().toList().drop(1)
     fun handleSignuPButtonClick() {
         scope.launch {
             viewModel.signUp()
@@ -70,7 +71,9 @@ fun SignUp(
     when (viewModel.apiStatus) {
         ApiStatus.DONE -> {
             SignUp(
-                navController, userUiState,
+                roleList = roleList,
+                navController = navController,
+                userUiState = userUiState,
                 onUpdate = viewModel::updateUiState,
                 onSignUpClick = {
                     handleSignuPButtonClick()
@@ -89,6 +92,7 @@ fun SignUp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUp(
+    roleList: List<UserRole>,
     navController: NavController,
     userUiState: UserUiState,
     onUpdate: (UserDetails) -> Unit,
@@ -131,7 +135,7 @@ fun SignUp(
         )
         RoleDropDown(
             userUiState = userUiState,
-            roleList = enumValues<UserRole>().toList(),
+            roleList = roleList,
             onRoleUpdate = {
                 onUpdate(userUiState.userDetails.copy(role = it))
             }

@@ -32,6 +32,10 @@ class OrderViewModel(
     var error by mutableStateOf(0)
         private set
 
+    fun clearError() {
+        error = 0
+    }
+
     var productListCart by mutableStateOf(ProductListCart())
         private set
 

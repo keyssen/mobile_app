@@ -87,40 +87,45 @@ fun Report(
     }
 
     Column(modifier = Modifier.padding(all = 10.dp)) {
-        Column(
-        ) {
-            Button(modifier = Modifier.fillMaxWidth(), onClick = { showStartDatePicker = true }) {
-                if (dateState.startDate == null || dateState.startDate == "null") {
-                    Text(text = "Старт периода")
-                } else {
-                    Text(text = dateState.startDate)
-                }
-            }
-            if (showStartDatePicker) {
-                DatePickerView(onUpdate = { startDate: String ->
-                    onUpdate(dateState.copy(startDate = startDate))
-                }, onDismiss = { showStartDatePicker = false })
-            }
-            Button(modifier = Modifier.fillMaxWidth(), onClick = { showEndDatePicker = true }) {
-                if (dateState.endDate == null || dateState.endDate == "null") {
-                    Text(text = "Конец периода")
-                } else {
-                    Text(text = dateState.endDate)
-                }
-            }
-            if (showEndDatePicker) {
-                DatePickerView(onUpdate = { endDate: String ->
-                    onUpdate(dateState.copy(endDate = endDate))
-                }, onDismiss = { showEndDatePicker = false })
-            }
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                getReport()
-            }) {
-                Text(text = "Отчёт")
-            }
-        }
-
         LazyColumn() {
+            item {
+                Column(
+                ) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { showStartDatePicker = true }) {
+                        if (dateState.startDate == null || dateState.startDate == "null") {
+                            Text(text = "Старт периода")
+                        } else {
+                            Text(text = dateState.startDate)
+                        }
+                    }
+                    if (showStartDatePicker) {
+                        DatePickerView(onUpdate = { startDate: String ->
+                            onUpdate(dateState.copy(startDate = startDate))
+                        }, onDismiss = { showStartDatePicker = false })
+                    }
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { showEndDatePicker = true }) {
+                        if (dateState.endDate == null || dateState.endDate == "null") {
+                            Text(text = "Конец периода")
+                        } else {
+                            Text(text = dateState.endDate)
+                        }
+                    }
+                    if (showEndDatePicker) {
+                        DatePickerView(onUpdate = { endDate: String ->
+                            onUpdate(dateState.copy(endDate = endDate))
+                        }, onDismiss = { showEndDatePicker = false })
+                    }
+                    Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                        getReport()
+                    }) {
+                        Text(text = "Отчёт")
+                    }
+                }
+            }
             items(reportListUiState.size) { index ->
                 val product = reportListUiState[index]
                 Row(

@@ -27,22 +27,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nodj.hardwareStore.R
-import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.ui.MyApplicationTheme
-import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
 import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
+import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
-import com.nodj.hardwareStore.ui.page.category.Category
+import com.nodj.hardwareStore.ui.navigation.changeLocation
+import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import com.nodj.hardwareStore.ui.page.orders.orderContent.OrderViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,38 +53,34 @@ fun OrderContent(
     navController: NavController,
     viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         viewModel.update()
     }
+    if (viewModel.error != 0) {0
+        showToast(context, stringResource(viewModel.error))
+        viewModel.clearError()
+    }
     val productList = viewModel.orderUiState.productList
     val productListCart = viewModel.productListCart.productListCart
-    when (viewModel.apiStatus) {
-        ApiStatus.DONE -> {
-            OrderContent(
-                productList = productList,
-                productListCart = productListCart,
-                onClickViewProduct = { id: Int ->
-                    val route = Screen.Product.route.replace("{id}", id.toString())
-                    navController.navigate(route)
-                },
-                onClickBuyProduct = { id: Int ->
-                    coroutineScope.launch {
-                        viewModel.addToCartProduct(id)
-                    }
-                },
-                onClickViewCart = {
-                    val route = Screen.Cart.route
-                    navController.navigate(route)
+        OrderContent(
+            productList = productList,
+            productListCart = productListCart,
+            onClickViewProduct = { id: Int ->
+                val route = Screen.Product.route.replace("{id}", id.toString())
+                changeLocation(navController, route)
+            },
+            onClickBuyProduct = { id: Int ->
+                coroutineScope.launch {
+                    viewModel.addToCartProduct(id)
                 }
-            )
-        }
-        ApiStatus.LOADING -> LoadingPlaceholder()
-        else -> ErrorPlaceholder(
-            message = stringResource(viewModel.error),
-            onBack = { navController.popBackStack() }
+            },
+            onClickViewCart = {
+                val route = Screen.Cart.route
+                changeLocationDeprecated(navController, route)
+            }
         )
-    }
 }
 
 
@@ -218,7 +216,7 @@ fun OrderViewPreview() {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-//            OrderView(navController = null, id = 0)
+//            OrderContent(navController = null, id = 0)
         }
     }
 }

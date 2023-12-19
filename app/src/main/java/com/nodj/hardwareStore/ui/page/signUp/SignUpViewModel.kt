@@ -12,8 +12,7 @@ import com.nodj.hardwareStore.ui.page.signIn.toUser
 
 class SignUpViewModel(
     private val userRepository: UserRepository,
-
-    ) : MyViewModel() {
+) : MyViewModel() {
 
     var userUiState by mutableStateOf(UserUiState())
         private set

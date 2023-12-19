@@ -15,3 +15,13 @@ fun changeLocationDeprecated(
         restoreState = true
     }
 }
+fun changeLocation(
+    navController: NavController,
+    route: String
+) {
+    navController.navigate(route) {
+        popUpTo(route) {
+            inclusive = true
+        }
+    }
+}
