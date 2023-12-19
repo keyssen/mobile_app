@@ -60,14 +60,16 @@ class ProductListInCartViewModel(
         runInScope(
             actionSuccess = {
                 val product = userWithProductsRepository.getByUserProduct(productid, userId)
-                userWithProductsRepository.update(
-                    UserWithProducts(
-                        userId,
-                        productid,
-                        product.count + 1
+                if (product != null) {
+                    userWithProductsRepository.update(
+                        UserWithProducts(
+                            userId,
+                            productid,
+                            product.count + 1
+                        )
                     )
-                )
-                update()
+                    update()
+                }
             },
             actionError = {
                 error = R.string.error_404
@@ -79,18 +81,20 @@ class ProductListInCartViewModel(
         runInScope(
             actionSuccess = {
                 val product = userWithProductsRepository.getByUserProduct(productid, userId)
-                if (product.count - 1 <= 0) {
-                    deleteProductInCart(userId, productid)
-                } else {
-                    userWithProductsRepository.update(
-                        UserWithProducts(
-                            userId,
-                            productid,
-                            product.count - 1
+                if (product != null) {
+                    if (product.count - 1 <= 0) {
+                        deleteProductInCart(userId, productid)
+                    } else {
+                        userWithProductsRepository.update(
+                            UserWithProducts(
+                                userId,
+                                productid,
+                                product.count - 1
+                            )
                         )
-                    )
+                    }
+                    update()
                 }
-                update()
             },
             actionError = {
                 error = R.string.error_404

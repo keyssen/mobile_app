@@ -40,6 +40,7 @@ import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.page.product.productCarts.ProductForCart
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +129,13 @@ fun Cart(
                 ) {
                     Column {
                         Text(
-                            "Цена: ${productListCart.sumOf { it.count * it.product.price }}",
+                            "Цена: ${
+                                String.format(
+                                    Locale.US,
+                                    "%.2f",
+                                    productListCart.sumOf { it.count * it.product.price }
+                                )
+                            }",
                             textAlign = TextAlign.Start
                         )
                         Column(

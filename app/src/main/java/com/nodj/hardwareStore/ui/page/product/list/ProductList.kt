@@ -73,6 +73,7 @@ import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -359,7 +360,13 @@ private fun ProductListItem(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "${product.product.price}"
+                    text = "${
+                        String.format(
+                            Locale.US,
+                            "%.2f",
+                            product.product.price
+                        )
+                    }"
                 )
             }
         }

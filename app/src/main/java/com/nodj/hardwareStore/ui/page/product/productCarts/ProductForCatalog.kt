@@ -34,6 +34,7 @@ import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.navigation.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +106,13 @@ fun ProductForCatalog(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "${product.price}"
+                    text = "${
+                        String.format(
+                            Locale.US,
+                            "%.2f",
+                            product.price
+                        )
+                    }"
                 )
             }
         }

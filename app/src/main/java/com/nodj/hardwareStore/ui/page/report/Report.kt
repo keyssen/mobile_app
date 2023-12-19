@@ -36,6 +36,7 @@ import com.nodj.hardwareStore.ui.UI.ErrorPlaceholder
 import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.UI.showToast
 import java.util.Date
+import java.util.Locale
 
 @Composable
 fun Report(
@@ -96,7 +97,7 @@ fun Report(
                 }
             }
             if (showStartDatePicker) {
-                DatePickerView(dateState, onUpdate = { startDate: String ->
+                DatePickerView(onUpdate = { startDate: String ->
                     onUpdate(dateState.copy(startDate = startDate))
                 }, onDismiss = { showStartDatePicker = false })
             }
@@ -108,7 +109,7 @@ fun Report(
                 }
             }
             if (showEndDatePicker) {
-                DatePickerView(dateState, onUpdate = { endDate: String ->
+                DatePickerView(onUpdate = { endDate: String ->
                     onUpdate(dateState.copy(endDate = endDate))
                 }, onDismiss = { showEndDatePicker = false })
             }
@@ -125,7 +126,7 @@ fun Report(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(90.dp)
+                        .height(180.dp)
                         .padding(top = 10.dp)
                         .border(2.dp, Color.Gray, RoundedCornerShape(10.dp)),
                 ) {
@@ -143,7 +144,39 @@ fun Report(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 10.dp, start = 10.dp),
-                            text = "Сумма: ${product.sum}"
+                            text = "Сумма: ${
+                                String.format(
+                                    Locale.US,
+                                    "%.2f",
+                                    product.sum
+                                )
+                            }"
+                        )
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, start = 10.dp),
+                            text = "Количество купленных товаров: ${product.count}"
+                        )
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, start = 10.dp),
+                            text = "Средняя цена за период: ${
+                                String.format(Locale.US, "%.2f", product.sum / product.count)
+                            }"
+                        )
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, start = 10.dp),
+                            text = "Текущая цена: ${
+                                String.format(
+                                    Locale.US,
+                                    "%.2f",
+                                    product.currentPrice
+                                )
+                            }"
                         )
                     }
                 }
@@ -156,7 +189,6 @@ fun Report(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerView(
-    dateState: DateState,
     onUpdate: (String) -> Unit,
     onDismiss: () -> Unit
 ) {

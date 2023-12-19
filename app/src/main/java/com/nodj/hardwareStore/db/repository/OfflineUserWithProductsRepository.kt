@@ -6,7 +6,7 @@ import com.nodj.hardwareStore.db.repository.repositoryInterface.UserWithProducts
 
 class OfflineUserWithProductsRepository(private val userWithProductsDao: UserWithProductsDao) :
     UserWithProductsRepository {
-    override suspend fun getByUserProduct(productId: Int, userId: Int): UserWithProducts =
+    override suspend fun getByUserProduct(productId: Int, userId: Int): UserWithProducts? =
         userWithProductsDao.getByUserProduct(productId, userId)
 
     override suspend fun deleteAllByUser(userId: Int) = userWithProductsDao.deleteAllByUser(userId)

@@ -5,7 +5,7 @@ import com.nodj.hardwareStore.db.models.manyToMany.UserWithProducts
 
 @Dao
 interface UserWithProductsRepository {
-    suspend fun getByUserProduct(productId: Int, userId: Int): UserWithProducts
+    suspend fun getByUserProduct(productId: Int, userId: Int): UserWithProducts?
 
     suspend fun deleteAllByUser(userId: Int)
 

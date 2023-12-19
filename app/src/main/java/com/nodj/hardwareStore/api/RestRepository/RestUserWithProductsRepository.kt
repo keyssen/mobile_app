@@ -13,8 +13,8 @@ class RestUserWithProductsRepository(
     private val service: MyServerService,
     private val dbUserWithProductsRepository: OfflineUserWithProductsRepository,
 ) : UserWithProductsRepository {
-    override suspend fun getByUserProduct(productId: Int, userId: Int): UserWithProducts {
-        return service.getByUserProduct(userId, productId).first().toUserWithProducts()
+    override suspend fun getByUserProduct(productId: Int, userId: Int): UserWithProducts? {
+        return service.getByUserProduct(userId, productId).firstOrNull()?.toUserWithProducts()
     }
 
     override suspend fun deleteAllByUser(userId: Int) {
@@ -25,8 +25,7 @@ class RestUserWithProductsRepository(
     }
 
     override suspend fun insert(userWithProducts: UserWithProducts) {
-        if (service.getByUserProduct(userWithProducts.productId, userWithProducts.userId).isEmpty()
-        ) {
+        if (getByUserProduct(userWithProducts.productId, userWithProducts.userId) == null) {
             dbUserWithProductsRepository.insert(
                 service.createUserWithProduct(userWithProducts.toUserRemoteForInsert())
                     .toUserWithProducts()
@@ -37,27 +36,31 @@ class RestUserWithProductsRepository(
     suspend fun getByUserProductRemote(
         productId: Int,
         userId: Int
-    ): UserWithProductsRemote {
-        return service.getByUserProduct(userId, productId).first()
+    ): UserWithProductsRemote? {
+        return service.getByUserProduct(userId, productId).firstOrNull()
     }
 
     override suspend fun update(userWithProducts: UserWithProducts) {
         val userWithProductsRemote =
             getByUserProductRemote(userWithProducts.productId, userWithProducts.userId)
-        val newUserWithProducts = userWithProducts.toUserRemote(userWithProductsRemote.id)
-        service.updateUserWithProduct(
-            userWithProductsRemote.id,
-            newUserWithProducts
-        )
-        dbUserWithProductsRepository.update(userWithProducts)
+        if (userWithProductsRemote != null) {
+            val newUserWithProducts = userWithProducts.toUserRemote(userWithProductsRemote.id)
+            service.updateUserWithProduct(
+                userWithProductsRemote.id,
+                newUserWithProducts
+            )
+            dbUserWithProductsRepository.update(userWithProducts)
+        }
     }
 
     override suspend fun delete(userWithProducts: UserWithProducts) {
         val userWithProductsRemote =
             getByUserProductRemote(userWithProducts.productId, userWithProducts.userId)
-        service.deleteUserWithProduct(
-            userWithProductsRemote.id
-        )
-        dbUserWithProductsRepository.delete(userWithProducts)
+        if (userWithProductsRemote != null) {
+            service.deleteUserWithProduct(
+                userWithProductsRemote.id
+            )
+            dbUserWithProductsRepository.delete(userWithProducts)
+        }
     }
 }
