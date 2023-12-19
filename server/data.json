@@ -370,6 +370,12 @@
       "name": "user",
       "password": "user",
       "id": 13
+    },
+    {
+      "name": "admin3",
+      "role": "ADMIN",
+      "password": "3",
+      "id": 14
     }
   ],
   "products": [

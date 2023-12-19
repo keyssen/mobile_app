@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.nodj.hardwareStore.R
 import com.nodj.hardwareStore.api.ApiStatus
 import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.UserRole
@@ -40,7 +41,6 @@ import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
-import com.nodj.hardwareStore.ui.page.product.Product
 import com.nodj.hardwareStore.ui.page.signIn.UserDetails
 import com.nodj.hardwareStore.ui.page.signIn.UserUiState
 import kotlinx.coroutines.launch
@@ -60,6 +60,7 @@ fun SignUp(
         }
     }
     if (viewModel.signUp) {
+        showToast(context, stringResource(R.string.registration))
         changeLocationDeprecated(navController, Screen.SignIn.route)
     }
     if (viewModel.error != 0) {
@@ -76,6 +77,7 @@ fun SignUp(
                 },
             )
         }
+
         ApiStatus.LOADING -> LoadingPlaceholder()
         else -> ErrorPlaceholder(
             message = viewModel.apiError,

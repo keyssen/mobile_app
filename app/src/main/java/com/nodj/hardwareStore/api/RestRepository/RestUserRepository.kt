@@ -21,7 +21,7 @@ class RestUserRepository(
     }
 
     override suspend fun getByNamePassword(name: String, password: String): User? {
-        val user = service.getUserByNamePassword(name, password)?.get(0)?.toUser()
+        val user = service.getUserByNamePassword(name, password).firstOrNull()?.toUser()
         if (dbUserRepository.getByNamePassword(name, password) == null && user != null) {
             dbUserRepository.insert(user)
         }

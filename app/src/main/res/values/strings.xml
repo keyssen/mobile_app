@@ -23,6 +23,7 @@
     <string name="error_404">Не удалось установить соединение</string>
     <string name="error_authentication">Неверное имя пользователя или пароль</string>
     <string name="error_registration">Пользователь с таким логином уже существует</string>
+    <string name="registration">Вы удачно зарегестрировалиь</string>
     <string name="back">Назад</string>
     <string name="loading">Загрузка…</string>
 </resources>

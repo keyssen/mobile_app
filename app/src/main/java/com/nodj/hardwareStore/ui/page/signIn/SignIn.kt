@@ -55,7 +55,7 @@ fun SignIn(
     }
     if (viewModel.signIn) {
         if (navController != null) {
-            changeLocationDeprecated(navController, Screen.Profile.route)
+            changeLocationDeprecated(navController, Screen.ProductList.route)
         }
     }
     when (viewModel.apiStatus) {

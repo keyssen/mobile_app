@@ -22,17 +22,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun ApplicationWrapper() {
-    Authenticator(
-        {
-            MyApplicationTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MainNavbar()
-                }
-            }
+    Authenticator()
+    MyApplicationTheme {
+        // A surface container using the 'background' color from the theme
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            MainNavbar()
         }
-    )
+    }
 }
