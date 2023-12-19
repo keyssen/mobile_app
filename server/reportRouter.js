@@ -8,7 +8,6 @@ module.exports = (req, res, next) => {
       const orderDate = new Date(order.date);
       return orderDate >= new Date(startDate) && orderDate <= new Date(endDate);
     });
-    console.log(new Date(startDate));
     const ordersWithProducts = data.order_with_products.filter(orderProd => {
       return filteredOrders.some(order => order.id === orderProd.orderId);
     });

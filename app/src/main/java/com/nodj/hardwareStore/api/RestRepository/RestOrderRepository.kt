@@ -12,16 +12,12 @@ import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.db.models.manyToMany.OrderWithProducts
 import com.nodj.hardwareStore.db.repository.OfflineOrderRepository
 import com.nodj.hardwareStore.db.repository.OfflineOrderWithProductsRepository
-import com.nodj.hardwareStore.db.repository.OfflineProductRepository
-import com.nodj.hardwareStore.db.repository.OfflineUserWithProductsRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.OrderRepository
 
 class RestOrderRepository(
     private val service: MyServerService,
     private val dbOrderRepository: OfflineOrderRepository,
     private val dbOrderWithProductsRepository: OfflineOrderWithProductsRepository,
-    private val dbUserWithProductsRepository: OfflineUserWithProductsRepository,
-    private val dbProductRepository: OfflineProductRepository,
 ) : OrderRepository {
     override suspend fun getByOrder(orderId: Int): List<ProductFromOrder> =
         service.getProductFromOrdersByOrder(orderId, "product").map { it.toProductFromOrder() }

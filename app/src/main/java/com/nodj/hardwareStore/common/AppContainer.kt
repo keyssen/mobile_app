@@ -4,7 +4,6 @@ import android.content.Context
 import com.nodj.hardwareStore.api.MyServerService
 import com.nodj.hardwareStore.api.RestRepository.RestCategoryRepository
 import com.nodj.hardwareStore.api.RestRepository.RestOrderRepository
-import com.nodj.hardwareStore.api.RestRepository.RestOrderWithProductsRepository
 import com.nodj.hardwareStore.api.RestRepository.RestProductRepository
 import com.nodj.hardwareStore.api.RestRepository.RestUserRepository
 import com.nodj.hardwareStore.api.RestRepository.RestUserWithProductsRepository
@@ -22,7 +21,6 @@ interface AppContainer {
     val restUserRepository: RestUserRepository
     val restProductRepository: RestProductRepository
     val restUserWithProductsRepository: RestUserWithProductsRepository
-    val restOrderWithProductsRepository: RestOrderWithProductsRepository
     val restOrderRepository: RestOrderRepository
     val service: MyServerService
 
@@ -62,8 +60,6 @@ class AppDataContainer(private val context: Context) : AppContainer {
             MyServerService.getInstance(),
             orderRepository,
             orderWithProductsRepository,
-            userWithProductsRepository,
-            productRepository
         )
     }
     override val restCategoryRepository: RestCategoryRepository by lazy {
@@ -78,8 +74,6 @@ class AppDataContainer(private val context: Context) : AppContainer {
         RestUserRepository(
             MyServerService.getInstance(),
             userRepository,
-            remoteKeyRepository,
-            AppDatabase.getInstance(context)
         )
     }
     override val restProductRepository: RestProductRepository by lazy {
@@ -95,13 +89,6 @@ class AppDataContainer(private val context: Context) : AppContainer {
         RestUserWithProductsRepository(
             MyServerService.getInstance(),
             userWithProductsRepository
-        )
-    }
-
-    override val restOrderWithProductsRepository: RestOrderWithProductsRepository by lazy {
-        RestOrderWithProductsRepository(
-            MyServerService.getInstance(),
-            orderWithProductsRepository
         )
     }
 }

@@ -3,21 +3,16 @@ package com.nodj.hardwareStore.api.RestRepository
 import com.nodj.hardwareStore.api.MyServerService
 import com.nodj.hardwareStore.api.model.toUser
 import com.nodj.hardwareStore.api.model.toUserRemote
-import com.nodj.hardwareStore.db.database.AppDatabase
 import com.nodj.hardwareStore.db.models.User
-import com.nodj.hardwareStore.db.remotekeys.dao.OfflineRemoteKeyRepository
 import com.nodj.hardwareStore.db.repository.OfflineUserRepository
 import com.nodj.hardwareStore.db.repository.repositoryInterface.UserRepository
 
 class RestUserRepository(
     private val service: MyServerService,
     private val dbUserRepository: OfflineUserRepository,
-    private val dbRemoteKeyRepository: OfflineRemoteKeyRepository,
-    private val database: AppDatabase
 ) : UserRepository {
     override suspend fun getByName(name: String): User? {
-        return if (service.getUserByName(name).count() == 1) service.getUserByName(name).get(0)
-            .toUser() else null
+        return service.getUserByName(name).firstOrNull()?.toUser()
     }
 
     override suspend fun getByNamePassword(name: String, password: String): User? {
