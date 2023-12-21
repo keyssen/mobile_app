@@ -4,8 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReportRemote(
-    val name: String = "",
-    val currentPrice: Double = 0.0,
-    val sum: Double = 0.0,
-    val count: Int = 0,
+    val totalSum: Double = 0.0,
+    val totalCount: Int = 0,
+    val listProductFromReport: List<ProducrFromReport> = listOf()
 )

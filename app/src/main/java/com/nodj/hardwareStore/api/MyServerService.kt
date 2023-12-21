@@ -205,7 +205,7 @@ interface MyServerService {
     suspend fun getReport(
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String,
-    ): List<ReportRemote>
+    ): ReportRemote
 
     companion object {
         private const val BASE_URL = "http://192.168.215.189:8079/"

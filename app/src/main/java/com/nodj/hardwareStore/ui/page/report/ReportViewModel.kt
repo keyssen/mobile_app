@@ -13,7 +13,7 @@ class ReportViewModel(
     private val service: MyServerService,
 ) : MyViewModel() {
 
-    var reportListUiState by mutableStateOf(ReportListUiState())
+    var reportRemote by mutableStateOf(ReportRemote())
         private set
 
     var error by mutableStateOf(0)
@@ -30,12 +30,10 @@ class ReportViewModel(
         if (LiveStore.getUserId() != 0 && validateInput(dateState)) {
             runInScope(
                 actionSuccess = {
-                    reportListUiState =
-                        ReportListUiState(
-                            service.getReport(
-                                dateState.startDate.toString(),
-                                dateState.endDate.toString()
-                            )
+                    reportRemote =
+                        service.getReport(
+                            dateState.startDate.toString(),
+                            dateState.endDate.toString()
                         )
                 },
                 actionError = {
@@ -72,5 +70,3 @@ data class DateState(
     val startDate: String? = null,
     val endDate: String? = null,
 )
-
-data class ReportListUiState(val reportListUiState: List<ReportRemote> = listOf())

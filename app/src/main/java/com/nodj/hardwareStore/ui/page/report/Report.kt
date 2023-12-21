@@ -53,7 +53,7 @@ fun Report(
             navController?.let {
                 Report(
                     dateState = viewModel.dateState,
-                    reportListUiState = viewModel.reportListUiState.reportListUiState,
+                    reportRemote = viewModel.reportRemote,
                     onUpdate = viewModel::updateUiState,
                     getReport = { viewModel.getReport() }
                 )
@@ -74,8 +74,7 @@ fun Report(
 @Composable
 fun Report(
     dateState: DateState,
-    reportListUiState:
-    List<ReportRemote>,
+    reportRemote: ReportRemote,
     onUpdate: (DateState) -> Unit,
     getReport: () -> Unit
 ) {
@@ -126,8 +125,41 @@ fun Report(
                     }
                 }
             }
-            items(reportListUiState.size) { index ->
-                val product = reportListUiState[index]
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(90.dp)
+                        .padding(top = 10.dp)
+                        .border(2.dp, Color.Gray, RoundedCornerShape(10.dp)),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, start = 10.dp),
+                            text = "Общее количество: ${reportRemote.totalCount}"
+                        )
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, start = 10.dp),
+                            text = "Общая цена: ${
+                                String.format(
+                                    Locale.US,
+                                    "%.2f",
+                                    reportRemote.totalSum
+                                )
+                            }"
+                        )
+                    }
+                }
+            }
+            items(reportRemote.listProductFromReport.size) { index ->
+                val product = reportRemote.listProductFromReport[index]
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

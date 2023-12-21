@@ -38,13 +38,10 @@ import com.nodj.hardwareStore.common.AppViewModelProvider
 import com.nodj.hardwareStore.db.models.Product
 import com.nodj.hardwareStore.db.models.helperModels.ProductFromOrder
 import com.nodj.hardwareStore.ui.MyApplicationTheme
-import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocation
-import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import com.nodj.hardwareStore.ui.page.orders.orderContent.OrderViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,29 +55,26 @@ fun OrderContent(
     LaunchedEffect(Unit) {
         viewModel.update()
     }
-    if (viewModel.error != 0) {0
+    if (viewModel.error != 0) {
+        0
         showToast(context, stringResource(viewModel.error))
         viewModel.clearError()
     }
     val productList = viewModel.orderUiState.productList
     val productListCart = viewModel.productListCart.productListCart
-        OrderContent(
-            productList = productList,
-            productListCart = productListCart,
-            onClickViewProduct = { id: Int ->
-                val route = Screen.Product.route.replace("{id}", id.toString())
-                changeLocation(navController, route)
-            },
-            onClickBuyProduct = { id: Int ->
-                coroutineScope.launch {
-                    viewModel.addToCartProduct(id)
-                }
-            },
-            onClickViewCart = {
-                val route = Screen.Cart.route
-                changeLocationDeprecated(navController, route)
+    OrderContent(
+        productList = productList,
+        productListCart = productListCart,
+        onClickViewProduct = { id: Int ->
+            val route = Screen.Product.route.replace("{id}", id.toString())
+            changeLocation(navController, route)
+        },
+        onClickBuyProduct = { id: Int ->
+            coroutineScope.launch {
+                viewModel.addToCartProduct(id)
             }
-        )
+        }
+    )
 }
 
 
@@ -91,7 +85,6 @@ fun OrderContent(
     productListCart: List<Product>,
     onClickViewProduct: (id: Int) -> Unit,
     onClickBuyProduct: (id: Int) -> Unit,
-    onClickViewCart: () -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
@@ -135,18 +128,9 @@ fun OrderContent(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = if (inCart) Arrangement.End else Arrangement.SpaceBetween
                         ) {
-                            if (inCart) {
-                                Button(
-                                    modifier = Modifier
-                                        .padding(all = 10.dp)
-                                        .width(130.dp)
-                                        .height(40.dp),
-                                    onClick = { onClickViewCart() }) {
-                                    Text(stringResource(R.string.go_to_cart))
-                                }
-                            } else {
+                            if (!inCart) {
                                 Button(
                                     modifier = Modifier
                                         .padding(all = 10.dp)

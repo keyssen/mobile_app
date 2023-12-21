@@ -147,7 +147,14 @@
       "id": 17
     }
   ],
-  "user_with_products": [],
+  "user_with_products": [
+    {
+      "userId": 1,
+      "productId": 2,
+      "count": 1,
+      "id": 1
+    }
+  ],
   "categories": [
     {
       "name": "phone",
