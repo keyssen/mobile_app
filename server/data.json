@@ -153,6 +153,18 @@
       "productId": 2,
       "count": 1,
       "id": 1
+    },
+    {
+      "userId": 1,
+      "productId": 1,
+      "count": 1,
+      "id": 2
+    },
+    {
+      "userId": 1,
+      "productId": 3,
+      "count": 1,
+      "id": 3
     }
   ],
   "categories": [
@@ -176,8 +188,9 @@
   ],
   "products": [
     {
+      "id": 1,
       "name": "phone 1",
-      "price": 100.99,
+      "price": 200.99,
       "image": [
         82,
         73,
@@ -11162,8 +11175,7 @@
         -39,
         0
       ],
-      "categoryId": 1,
-      "id": 1
+      "categoryId": 1
     },
     {
       "id": 2,

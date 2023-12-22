@@ -41,6 +41,7 @@ import com.nodj.hardwareStore.ui.MyApplicationTheme
 import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocation
+import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
 import com.nodj.hardwareStore.ui.page.orders.orderContent.OrderViewModel
 import kotlinx.coroutines.launch
 
@@ -69,6 +70,11 @@ fun OrderContent(
             val route = Screen.Product.route.replace("{id}", id.toString())
             changeLocation(navController, route)
         },
+        onClickViewCart = { id: Int ->
+            navController.popBackStack()
+            val route = Screen.Cart.route.replace("{id}", id.toString())
+            changeLocationDeprecated(navController, route)
+        },
         onClickBuyProduct = { id: Int ->
             coroutineScope.launch {
                 viewModel.addToCartProduct(id)
@@ -84,6 +90,7 @@ fun OrderContent(
     productList: List<ProductFromOrder>,
     productListCart: List<Product>,
     onClickViewProduct: (id: Int) -> Unit,
+    onClickViewCart: (id: Int) -> Unit,
     onClickBuyProduct: (id: Int) -> Unit,
 ) {
     LazyVerticalGrid(
@@ -128,7 +135,7 @@ fun OrderContent(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            horizontalArrangement = if (inCart) Arrangement.End else Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             if (!inCart) {
                                 Button(
@@ -138,6 +145,15 @@ fun OrderContent(
                                         .height(40.dp),
                                     onClick = { onClickBuyProduct(productFromOrder.product.id) }) {
                                     Text(stringResource(R.string.product_buy))
+                                }
+                            } else {
+                                Button(
+                                    modifier = Modifier
+                                        .padding(all = 10.dp)
+                                        .width(125.dp)
+                                        .height(40.dp),
+                                    onClick = { onClickViewCart(productFromOrder.product.id) }) {
+                                    Text(stringResource(R.string.go_to_cart))
                                 }
                             }
                             Text(
