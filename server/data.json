@@ -24,6 +24,16 @@
       "date": "2023-12-19T23:02:56.419+0400",
       "userId": 1,
       "id": 5
+    },
+    {
+      "date": "2023-12-24T12:41:33.677+0400",
+      "userId": 3,
+      "id": 6
+    },
+    {
+      "date": "2023-12-24T12:41:47.480+0400",
+      "userId": 3,
+      "id": 7
     }
   ],
   "order_with_products": [
@@ -145,6 +155,27 @@
       "count": 1,
       "currentPrice": 500.99,
       "id": 17
+    },
+    {
+      "orderId": 6,
+      "productId": 1,
+      "count": 1,
+      "currentPrice": 200.99,
+      "id": 18
+    },
+    {
+      "orderId": 7,
+      "productId": 2,
+      "count": 1,
+      "currentPrice": 500.99,
+      "id": 19
+    },
+    {
+      "orderId": 7,
+      "productId": 3,
+      "count": 1,
+      "currentPrice": 300.99,
+      "id": 20
     }
   ],
   "user_with_products": [
@@ -165,6 +196,12 @@
       "productId": 3,
       "count": 1,
       "id": 3
+    },
+    {
+      "userId": 3,
+      "productId": 3,
+      "count": 1,
+      "id": 4
     }
   ],
   "categories": [
@@ -181,9 +218,20 @@
       "id": 1
     },
     {
+      "name": "admin2",
+      "role": "ADMIN",
+      "password": "admin2",
+      "id": 2
+    },
+    {
       "name": "user",
       "password": "user",
-      "id": 2
+      "id": 3
+    },
+    {
+      "name": "user2",
+      "password": "user2",
+      "id": 4
     }
   ],
   "products": [

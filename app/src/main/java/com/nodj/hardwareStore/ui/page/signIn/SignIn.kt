@@ -53,11 +53,6 @@ fun SignIn(
         showToast(context, stringResource(viewModel.error))
         viewModel.clearError()
     }
-    if (viewModel.signIn) {
-        if (navController != null) {
-            changeLocationDeprecated(navController, Screen.ProductList.route)
-        }
-    }
     when (viewModel.apiStatus) {
         ApiStatus.DONE -> {
             navController?.let {
