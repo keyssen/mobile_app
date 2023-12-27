@@ -21,7 +21,6 @@ class SignUpViewModel(
         private set
 
     var signUp by mutableStateOf(false)
-        private set
 
     fun updateUiState(userDetails: UserDetails) {
         userUiState = UserUiState(

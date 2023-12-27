@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,9 @@ fun Report(
     if (viewModel.error != 0) {
         showToast(context, stringResource(viewModel.error))
         viewModel.clearError()
+    }
+    LaunchedEffect(Unit) {
+        viewModel.update()
     }
     when (viewModel.apiStatus) {
         ApiStatus.DONE -> {

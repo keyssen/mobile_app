@@ -138,7 +138,13 @@ fun OrderList(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 10.dp, start = 10.dp),
-                                text = "Цена: ${listProduct?.sumOf { it.count * it.currentPrice }}"
+
+                                text = "Цена: ${
+                                    String.format(
+                                        Locale.US,
+                                        "%.2f",
+                                        listProduct?.sumOf { it.count * it.currentPrice })
+                                }"
                             )
                         }
                     }

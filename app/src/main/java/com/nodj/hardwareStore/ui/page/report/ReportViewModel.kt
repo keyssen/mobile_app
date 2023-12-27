@@ -1,5 +1,6 @@
 package com.nodj.hardwareStore.ui.page.report
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,6 +25,13 @@ class ReportViewModel(
 
     fun clearError() {
         error = 0
+    }
+
+    fun update() {
+        Log.d("update", "update")
+        clearError()
+        reportRemote = ReportRemote()
+        dateState = DateState()
     }
 
     fun getReport() {

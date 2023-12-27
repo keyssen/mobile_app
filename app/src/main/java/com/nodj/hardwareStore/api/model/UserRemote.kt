@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class UserRemote(
     val id: Int = 0,
     val name: String = "",
-    val role: UserRole = UserRole.USER,
+    val role: UserRole = UserRole.UNAUTHENTICATED,
     val password: String = ""
 )
 

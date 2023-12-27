@@ -28,8 +28,4 @@ class AuthenticatorViewModel(
             }
         )
     }
-
-    fun clear() {
-        user = null;
-    }
 }

@@ -55,12 +55,6 @@ interface MyServerService {
         @Path("id") id: Int,
     ): CategoryRemote
 
-    @GET("users")
-    suspend fun getUsers(
-        @Query("_page") page: Int,
-        @Query("_limit") limit: Int,
-    ): List<UserRemote>
-
     @GET("users/{id}")
     suspend fun getUser(
         @Path("id") id: Int,
@@ -99,16 +93,6 @@ interface MyServerService {
         @Query("_limit") limit: Int,
     ): List<ProductRemote>
 
-    @GET("products")
-    suspend fun getByCategoryProducts(
-        @Query("categoryId") categoryId: Int,
-    ): List<ProductRemote>
-
-//    @GET("products")
-//    suspend fun getByUserProducts(
-//        @Query("userId") userId: Int,
-//    ): List<ProductRemote>
-
     @GET("products/{id}")
     suspend fun getProduct(
         @Path("id") id: Int,
@@ -131,9 +115,6 @@ interface MyServerService {
     ): ProductRemote
 
     @GET("user_with_products")
-    suspend fun getAllUserWithProduct(): List<UserWithProductsRemote>
-
-    @GET("user_with_products")
     suspend fun getByUserProduct(
         @Query("userId") userId: Int,
         @Query("productId") productId: Int,
@@ -146,14 +127,6 @@ interface MyServerService {
 
     @GET("user_with_products")
     suspend fun getAllByUserAdvancedProducts(
-        @Query("userId") userId: Int,
-        @Query("_expand") _expand: String,
-    ): List<AdvancedProductRemote>
-
-    @GET("user_with_products")
-    suspend fun getByUserAdvancedProducts(
-        @Query("_page") page: Int,
-        @Query("_limit") limit: Int,
         @Query("userId") userId: Int,
         @Query("_expand") _expand: String,
     ): List<AdvancedProductRemote>
@@ -187,12 +160,6 @@ interface MyServerService {
     @GET("order_with_products")
     suspend fun getProductFromOrdersByOrder(
         @Query("orderId") orderId: Int,
-        @Query("_expand") _expand: String,
-    ): List<ProductFromOrderRemote>
-
-    @GET("order_with_products")
-    suspend fun getProductFromOrdersByUser(
-        @Query("userId") userId: Int,
         @Query("_expand") _expand: String,
     ): List<ProductFromOrderRemote>
 

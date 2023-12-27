@@ -176,7 +176,7 @@ fun OrderContent(
                             Text(
                                 modifier = Modifier
                                     .fillMaxWidth(),
-                                text = "${productFromOrder.product.price}"
+                                text = "${productFromOrder.currentPrice}"
                             )
                         }
 

@@ -1,6 +1,5 @@
 package com.nodj.hardwareStore.db.dao
 
-import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -11,9 +10,6 @@ import com.nodj.hardwareStore.db.models.User
 
 @Dao
 interface UserDao {
-    @Query("select * from users order by name collate nocase asc")
-    fun getAll(): PagingSource<Int, User>
-
     @Query("SELECT * FROM users WHERE name = :name AND password = :password LIMIT 1")
     suspend fun getByNamePassword(name: String, password: String): User?
 

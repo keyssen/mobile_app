@@ -63,6 +63,7 @@ fun SignUp(
     if (viewModel.signUp) {
         showToast(context, stringResource(R.string.registration))
         changeLocationDeprecated(navController, Screen.SignIn.route)
+        viewModel.signUp = false
     }
     if (viewModel.error != 0) {
         showToast(context, stringResource(viewModel.error))

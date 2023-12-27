@@ -22,7 +22,6 @@ class SignInViewModel(
         private set
 
     var signIn by mutableStateOf(false)
-        private set
 
     fun updateUiState(userDetails: UserDetails) {
         userUiState = UserUiState(

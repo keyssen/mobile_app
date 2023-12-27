@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +34,7 @@ import com.nodj.hardwareStore.ui.UI.LoadingPlaceholder
 import com.nodj.hardwareStore.ui.UI.showToast
 import com.nodj.hardwareStore.ui.navigation.Screen
 import com.nodj.hardwareStore.ui.navigation.changeLocationDeprecated
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,6 +51,18 @@ fun SignIn(
             viewModel.SignIn(context)
         }
     }
+    LaunchedEffect(viewModel.signIn) {
+        if (viewModel.signIn) {
+            if (navController != null) {
+                scope.launch {
+                    delay(1L)
+                    changeLocationDeprecated(navController, Screen.ProductList.route)
+                    viewModel.signIn = false
+                }
+            }
+        }
+    }
+
     if (viewModel.error != 0) {
         showToast(context, stringResource(viewModel.error))
         viewModel.clearError()
